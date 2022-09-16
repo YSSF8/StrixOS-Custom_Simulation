@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>StrixOS | Custom HTML OS simulation</title>
+        <link rel="stylesheet" href="./style/style.css">
+        <link rel="stylesheet" href="./wp.css">
+        <link rel="shortcut icon" href="./items/logo.png">
+        <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    </head>
+    <body>
+        <div class="apps-sort">
+            <div class="app te" title="Just a text editor">
+                <img src="./items/TE.png" style="margin-left: 7px;" height="60" draggable="false" alt="">
+                <div class="app-ttl te-ttl" style="margin-left: 16px;">Text...</div>
+            </div>
+            <div class="app ggl" title="Search for anything">
+                <img src="./items/google.png" height="60" draggable="false" alt="">
+                <div class="app-ttl ggl-ttl">Google</div>
+            </div>
+        </div>
+        <div class="task-bar">
+            <div class="start-btn tb-icon" style="width: max-content;"><img src="./items/logo.png" height="43" title="Start" draggable="false" alt=""></div>
+            <div class="pinned-apps">
+                <div class="tb-te tb-icon"><img src="./items/TE.png" height="43" draggable="false" alt=""></div>
+                <div class="tb-ggl tb-icon" style="margin-left: 6px;"><img src="./items/google.png" height="43" draggable="false" alt=""></div>
+            </div>
+        </div>
+        <div class="start-menu">
+            <div class="start-app" onclick="Gui('Text Editor', 'te-win', 'textarea');"><img src="./items/TE.png" height="70" draggable="false" alt=""></div>
+            <div class="start-app" style="margin-left: 10px;" onclick="Gui('Google', 'ggl-win', 'iframe');"><img src="./items/google.png" height="70" draggable="false" alt=""></div>
+            <div class="pwr">
+                <i class="fa fa-power-off pwr-btn"></i>
+                <div class="pwr-menu">
+                    <div class="option off" onclick="window.close()"><i class="fa fa-power-off"></i> Shutdown</div>
+                    <hr>
+                    <div class="option rst" onclick="location.reload()"><i class="fa fa-refresh"></i> Restart</div>
+                </div>
+            </div>
+        </div>
+        <img src="./items/cursor.png" class="cursor" height="22" alt="">
+        <div class="ctx-menu">
+            <div class="ctx-option" onclick="window.close()"><i class="fa fa-power-off"></i> Shutdown</div>
+            <hr>
+            <div class="ctx-option" onclick="location.reload()"><i class="fa fa-refresh"></i> Restart</div>
+        </div>
+        <script src="./main.js"></script>
+    </body>
+</html>

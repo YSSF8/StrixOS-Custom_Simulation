@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+@import './vars.scss';
+
+* {
+    color: $def-clr;
+    font-family: 'Varela Round', sans-serif;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    cursor: none !important;
+}
+
+.cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.app {
+    width: 5rem;
+    padding: 5px;
+
+    &:hover {
+        background: $over-accent;
+        border-radius: 8px;
+    }
+}
+
+.app.ggl {
+    margin: 7px 0;
+    text-align: center;
+}
+
+.window {
+    position: fixed;
+    width: 50rem;
+    height: 25rem;
+    background: $def-bg;
+    border-radius: 12px;
+    left: 26%;
+    top: 20%;
+    border: 1.1px solid $accent;
+    transform: scale(0);
+    transition: transform 200ms ease-in-out;
+
+    .top-bar {
+        background: $btr-bg;
+        width: 100%;
+        height: 2.2rem;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+
+        .title {
+            position: absolute;
+            padding: 8px 9.5px;
+        }
+
+        .close-btn {
+            position: absolute;
+            width: 3.2rem;
+            height: 28.5px;
+            padding-top: 7px;
+            right: 0;
+            text-align: center;
+            font-size: 20px;
+            border-top-right-radius: 12px;
+            transition: background 200ms ease-in-out;
+
+            &:hover {
+                background: rgb(255, 38, 38);
+            }
+        }
+    }
+}
+
+textarea {
+    background: $def-bg;
+    width: 98.8%;
+    height: 89.8%;
+    outline: none;
+    resize: none;
+    border: none;
+    padding-left: 7px;
+    font-size: 16px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+
+    &::selection {
+        background: $accent;
+    }
+}
+
+iframe {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    width: 100%;
+    height: 91.15%;
+    border: none;
+}
+
+.task-bar {
+    background: $tb-bar;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2.7rem;
+    padding: 3.5px;
+    z-index: 8;
+
+    .pinned-apps {
+        position: fixed;
+        display: inline-flex;
+        left: 3.3rem;
+        bottom: 0;
+    }
+}
+
+.start-menu {
+    background: $btr-bg;
+    border: 1px solid $def-black;
+    width: 18rem;
+    height: 27rem;
+    border-radius: 8px;
+    position: fixed;
+    bottom: -29.7rem;
+    display: inline-flex;
+    padding: 20px;
+    z-index: 7;
+    transition: bottom 200ms ease-in-out;
+
+    .start-app {
+        background: $def-app-bg;
+        width: 7rem;
+        height: max-content;
+        padding: 15px;
+        text-align: center;
+        border-radius: 8px;
+        transition: background 200ms ease-in-out;
+
+        &:hover {
+            background: $def-drk-bg;
+        }
+    }
+}
+
+.start-menu.start-show {
+    bottom: 63px;
+}
+
+.pwr-btn {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    padding: 10px;
+    font-family: 50px;
+    border-radius: 5px;
+    transition: background 200ms ease-in-out;
+
+    &:hover {
+        background: $def-bg;
+    }
+}
+
+.pwr-menu {
+    background: $def-bg;
+    position: absolute;
+    left: 12px;
+    bottom: 50px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid $def-black;
+    transform: scale(0);
+    transform-origin: left bottom;
+    transition: transform 200ms ease-in-out;
+
+    .option {
+        padding: 4px;
+        border-radius: 5px;
+        transition: background 100ms ease-in-out;
+
+        &:hover {
+            background: $def-drk-bg;
+        }
+    }
+}
+
+.pwr-menu.pwr-show {
+    transform: scale(1);
+}
+
+.ctx-menu {
+    background: $def-app-bg;
+    width: 9rem;
+    padding: 15px;
+    border-radius: 8px;
+    position: fixed;
+    transform: scale(0);
+    transform-origin: left top;
+    border: 1px solid $def-black;
+    z-index: 9;
+    transition: transform 200ms ease-in-out;
+
+    .ctx-option {
+        padding: 5px;
+        border-radius: 5px;
+        transition: background 200ms ease-in-out;
+
+        &:hover {
+            background: $def-drk-bg;
+        }
+    }
+}
+
+.tb-icon {
+    transition: transform 70ms;
+
+    &:active {
+        transform: scale(.8);
+    }
+}
+
+hr {
+    border-color: $line;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $scr-bar;
+    border-radius: 5px;
+}
