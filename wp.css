@@ -1,3 +1,7 @@
+* {
+    cursor: url('items/cursor.svg'), auto !important;
+}
+
 body {
     background-image: url('items/wallpaper.jpg');
     background-size: cover;

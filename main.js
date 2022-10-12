@@ -1,14 +1,6 @@
-// Custom cursor
-document.addEventListener('mousemove', e => {
-    const ptr = document.querySelector('.cursor');
-    let mouseX = e.clientX, mouseY = e.clientY;
-    ptr.style.left = mouseX + 'px';
-    ptr.style.top = mouseY + 'px';
-});
-
 // Opens the text editor when double clicking on the text editor desktop icon
 document.querySelector('.te').addEventListener('dblclick', () => {
-    Gui('Text Editor', 'te-win', 'textarea');
+    Gui('Text Editor', 'te-win-', 'textarea');
 });
 
 // Opens Google when double clicking on the G desktop icon
@@ -18,7 +10,7 @@ document.querySelector('.ggl').addEventListener('dblclick', () => {
 
 // Opens the text editor when clicking on the text editor taskbar icon
 document.querySelector('.tb-te').addEventListener('click', () => {
-    Gui('Text Editor', 'te-win', 'textarea');
+    Gui('Text Editor', 'te-win-', 'textarea');
 });
 
 // Opens Google when clicking on the G taskbar icon
@@ -33,7 +25,7 @@ function Gui(title, win, inside) {
     // Creates the window itself
     guiCount++;
     const window = document.createElement('div');
-    window.classList.add('window', win, 'window-' + guiCount);
+    window.classList.add('window', win + guiCount, 'window-' + guiCount);
     document.body.appendChild(window);
 
     // Creates the app top-bar
@@ -59,12 +51,14 @@ function Gui(title, win, inside) {
     inWin.src = 'https://www.google.com?igu=1';
     document.querySelector('.window-' + guiCount).appendChild(inWin);
 
-    // Text Editor auto focus
+    // Text Editor configuration
+    var limit = 0;
+
     if (inside == 'textarea') {
-        const ta = document.querySelector('textarea');
-        ta.focus();
-        ta.spellcheck = false;
-        ta.ariaLabel = 'text-editor';
+        inWin.focus();
+        inWin.classList.add('area-' + guiCount);
+        inWin.spellcheck = false;
+        inWin.ariaLabel = 'text-editor';
     } else {
         inWin.classList.add('iframe-' + guiCount);
     }
@@ -137,20 +131,6 @@ function Gui(title, win, inside) {
 
     // The window will only be able to be moved via the top bar (.window-top element). The main element does nothing on mouse down.
     makeDraggable(document.querySelector('.window-' + guiCount));
-
-    // Custom cursor disables after hovering on the "Google" iframe
-    // Selects the iframe
-    const iframeSelector = document.querySelector('.iframe-' + guiCount);
-
-    // Removes the custom cursor when it enters the "Google" window
-    iframeSelector.addEventListener('mouseover', () => {
-        document.querySelector('.cursor').style.visibility = 'hidden';
-    });
-
-    // Adds the custom cursor when it enters the "Google" window
-    iframeSelector.addEventListener('mouseout', () => {
-        document.querySelector('.cursor').style.visibility = 'visible';
-    });
 }
 
 // Custom context menu
@@ -175,20 +155,10 @@ document.addEventListener('click', () => {
     ctx.style.transform = 'scale(0)';
 });
 
-// Removes the custom cursor when it leaves the window
-document.addEventListener("mouseleave", () => {
-    document.querySelector('.cursor').style.visibility = 'hidden';
-});
-
-// Adds the custom cursor when it leaves the window
-document.addEventListener('mouseenter', () => {
-    document.querySelector('.cursor').style.visibility = 'visible';
-});
-
 // Disables the developer tools
 document.onkeydown = function (e) {
     // F12 Shortcut, F3 Shortcut, F6 Shortcut, F10 Shortcut, F7 Shortcut
-    if (event.keyCode == 123 || event.keyCode == 114 || event.keyCode == 117 || event.keyCode == 121  || event.keyCode == 118) {
+    if (event.keyCode == 123 || event.keyCode == 114 || event.keyCode == 117 || event.keyCode == 121 || event.keyCode == 118) {
         return false;
     }
     // CTRL+SHIFT+I Shortcut
@@ -205,6 +175,10 @@ document.onkeydown = function (e) {
     }
     // CTRL+U Shortcut
     if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+        return false;
+    }
+    // CTRL+F Shortcut
+    if (e.ctrlKey && e.keyCode == 'F'.charCodeAt(0)) {
         return false;
     }
 }

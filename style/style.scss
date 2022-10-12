@@ -9,7 +9,6 @@
     -moz-user-select: none;
     -o-user-select: none;
     user-select: none;
-    cursor: none !important;
 }
 
 .cursor {
@@ -42,6 +41,10 @@
     left: 26%;
     top: 20%;
     border: 1.1px solid $accent;
+    overflow: hidden;
+    resize: both;
+    min-width: 10rem;
+    min-height: 7rem;
     transform: scale(0);
     transition: transform 200ms ease-in-out;
 
@@ -65,7 +68,6 @@
             right: 0;
             text-align: center;
             font-size: 20px;
-            border-top-right-radius: 12px;
             transition: background 200ms ease-in-out;
 
             &:hover {
@@ -84,8 +86,8 @@ textarea {
     border: none;
     padding-left: 7px;
     font-size: 16px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+    // border-bottom-left-radius: 12px;
+    // border-bottom-right-radius: 12px;
 
     &::selection {
         background: $accent;
@@ -93,8 +95,6 @@ textarea {
 }
 
 iframe {
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
     width: 100%;
     height: 91.15%;
     border: none;
@@ -108,6 +108,7 @@ iframe {
     width: 100%;
     height: 2.7rem;
     padding: 3.5px;
+    backdrop-filter: blur(20px);
     z-index: 8;
 
     .pinned-apps {
@@ -119,7 +120,8 @@ iframe {
 }
 
 .start-menu {
-    background: $btr-bg;
+    background: rgb(30, 30, 30, .4);
+    backdrop-filter: blur(10px);
     border: 1px solid $def-black;
     width: 18rem;
     height: 27rem;
@@ -132,7 +134,7 @@ iframe {
     transition: bottom 200ms ease-in-out;
 
     .start-app {
-        background: $def-app-bg;
+        background: transparent;
         width: 7rem;
         height: max-content;
         padding: 15px;
@@ -141,7 +143,7 @@ iframe {
         transition: background 200ms ease-in-out;
 
         &:hover {
-            background: $def-drk-bg;
+            background: $def-tr;
         }
     }
 }
@@ -165,7 +167,7 @@ iframe {
 }
 
 .pwr-menu {
-    background: $def-bg;
+    background: transparent;
     position: absolute;
     left: 12px;
     bottom: 50px;
@@ -182,7 +184,7 @@ iframe {
         transition: background 100ms ease-in-out;
 
         &:hover {
-            background: $def-drk-bg;
+            background: $def-tr;
         }
     }
 }
@@ -192,7 +194,8 @@ iframe {
 }
 
 .ctx-menu {
-    background: $def-app-bg;
+    background: $def-tr;
+    backdrop-filter: blur(10px);
     width: 9rem;
     padding: 15px;
     border-radius: 8px;
@@ -209,7 +212,7 @@ iframe {
         transition: background 200ms ease-in-out;
 
         &:hover {
-            background: $def-drk-bg;
+            background: $def-tr;
         }
     }
 }
