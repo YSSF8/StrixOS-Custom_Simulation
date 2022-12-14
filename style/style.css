@@ -9,10 +9,8 @@
       user-select: none;
 }
 
-.cursor {
-  position: fixed;
-  pointer-events: none;
-  z-index: 10;
+body {
+  overflow: hidden;
 }
 
 .app {
@@ -156,7 +154,7 @@ iframe {
   transition: background 200ms ease-in-out;
 }
 .pwr-btn:hover {
-  background: #121112;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .pwr-menu {
@@ -188,7 +186,7 @@ iframe {
   background: rgba(0, 0, 0, 0.2);
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
-  width: 9rem;
+  width: 14rem;
   padding: 15px;
   border-radius: 8px;
   position: fixed;
@@ -215,7 +213,43 @@ iframe {
 }
 
 hr {
-  border-color: #bbb;
+  border-radius: 2px;
+  border-color: #000;
+  background: #000;
+}
+
+.admin-panel {
+  position: fixed;
+  border: 1px solid #000;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.7254901961);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  padding: 15px;
+  width: 15rem;
+  left: 50%;
+  top: 48%;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.7);
+  transform: translate(-50%, -50%);
+  transition: 200ms;
+  transition-property: opacity, top;
+  z-index: 9;
+}
+.admin-panel div {
+  padding-bottom: 7px;
+}
+.admin-panel .option {
+  border: none;
+  border-radius: 5px;
+  padding: 7px 17px;
+  background: #0057a2;
+  outline: none;
+  transition: background 200ms;
+}
+.admin-panel .option:hover {
+  background: rgba(0, 86, 162, 0.4941176471);
 }
 
 ::-webkit-scrollbar {
@@ -225,4 +259,7 @@ hr {
 ::-webkit-scrollbar-thumb {
   background: #3f3f3f;
   border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
 }/*# sourceMappingURL=style.css.map */

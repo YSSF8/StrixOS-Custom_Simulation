@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="./style/style.css">
         <link rel="stylesheet" href="./wp.css">
         <link rel="shortcut icon" href="./items/logo.png">
-        <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+        <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.2.1/css/all.css">
     </head>
     <body>
         <div class="apps-sort">
@@ -24,13 +24,13 @@
         <div class="task-bar">
             <div class="start-btn tb-icon" style="width: max-content;"><img src="./items/logo.png" height="43" title="Start" draggable="false" alt=""></div>
             <div class="pinned-apps">
-                <div class="tb-te tb-icon"><img src="./items/TE.png" height="43" draggable="false" alt=""></div>
-                <div class="tb-ggl tb-icon" style="margin-left: 6px;"><img src="./items/google.png" height="43" draggable="false" alt=""></div>
+                <div class="tb-te tb-icon te-open"><img src="./items/TE.png" height="43" draggable="false" alt=""></div>
+                <div class="tb-ggl tb-icon ggl-open" style="margin-left: 6px;"><img src="./items/google.png" height="43" draggable="false" alt=""></div>
             </div>
         </div>
         <div class="start-menu">
-            <div class="start-app" onclick="Gui('Text Editor', 'te-win', 'textarea');"><img src="./items/TE.png" height="70" draggable="false" alt=""></div>
-            <div class="start-app" style="margin-left: 10px;" onclick="Gui('Google', 'ggl-win', 'iframe');"><img src="./items/google.png" height="70" draggable="false" alt=""></div>
+            <div class="start-app te-open"><img src="./items/TE.png" height="70" draggable="false" alt=""></div>
+            <div class="start-app ggl-open" style="margin-left: 10px;"><img src="./items/google.png" height="70" draggable="false" alt=""></div>
             <div class="pwr">
                 <i class="fa fa-power-off pwr-btn"></i>
                 <div class="pwr-menu">
@@ -40,12 +40,22 @@
                 </div>
             </div>
         </div>
-        <img src="./items/cursor.png" class="cursor" height="22" alt="">
         <div class="ctx-menu">
             <div class="ctx-option" onclick="window.close()"><i class="fa fa-power-off"></i> Shutdown</div>
             <hr>
             <div class="ctx-option" onclick="location.reload()"><i class="fa fa-refresh"></i> Restart</div>
+            <hr id="admin-hr" style="display: none;">
+            <div class="ctx-option" id="admin-option" style="display: none;"><i class="fa-solid fa-shield-quartered"></i> Run as administrator</div>
         </div>
-        <script src="./main.js"></script>
+        <div class="admin-panel">
+            <div>Are you sure you want to run this app as an administrator?</div>
+            <center>
+                <div class="admin-options">
+                    <button class="option yes">Yes</button>
+                    <button class="option no">No</button>
+                </div>
+            </center>
+        </div>
+        <script src="./main.js" type="module"></script>
     </body>
 </html>

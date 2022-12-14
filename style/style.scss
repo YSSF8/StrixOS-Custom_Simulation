@@ -11,10 +11,8 @@
     user-select: none;
 }
 
-.cursor {
-    position: fixed;
-    pointer-events: none;
-    z-index: 10;
+body {
+    overflow: hidden;
 }
 
 .app {
@@ -86,8 +84,6 @@ textarea {
     border: none;
     padding-left: 7px;
     font-size: 16px;
-    // border-bottom-left-radius: 12px;
-    // border-bottom-right-radius: 12px;
 
     &::selection {
         background: $accent;
@@ -162,7 +158,7 @@ iframe {
     transition: background 200ms ease-in-out;
 
     &:hover {
-        background: $def-bg;
+        background: $def-tr;
     }
 }
 
@@ -196,7 +192,7 @@ iframe {
 .ctx-menu {
     background: $def-tr;
     backdrop-filter: blur(10px);
-    width: 9rem;
+    width: 14rem;
     padding: 15px;
     border-radius: 8px;
     position: fixed;
@@ -226,7 +222,45 @@ iframe {
 }
 
 hr {
-    border-color: $line;
+    border-radius: 2px;
+    border-color: $def-black;
+    background: $def-black;
+}
+
+.admin-panel {
+    position: fixed;
+    border: 1px solid $def-black;
+    border-radius: 8px;
+    background: $tb-bar;
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    width: 15rem;
+    left: 50%;
+    top: 48%;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 0 0 5000px rgba(0, 0, 0, .7);
+    transform: translate(-50%, -50%);
+    transition: 200ms;
+    transition-property: opacity, top;
+    z-index: 9;
+
+    div {
+        padding-bottom: 7px;
+    }
+
+    .option {
+        border: none;
+        border-radius: 5px;
+        padding: 7px 17px;
+        background: $accent;
+        outline: none;
+        transition: background 200ms;
+
+        &:hover {
+            background: $over-accent;
+        }
+    }
 }
 
 ::-webkit-scrollbar {
@@ -236,4 +270,8 @@ hr {
 ::-webkit-scrollbar-thumb {
     background: $scr-bar;
     border-radius: 5px;
+
+    &:hover {
+        background: #3a3a3a;
+    }
 }
