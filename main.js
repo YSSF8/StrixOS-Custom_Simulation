@@ -4,6 +4,26 @@ fetch('https://BingoAPI.darksidex37.repl.co')
         document.querySelector('.bg').src = data.url;
     });
 
+function getUsername() {
+    const username = prompt('Username (Optional, max 10 characters):');
+
+    if (username === null || username === undefined || username.trim() === '') {
+        return 'Guest';
+    } else {
+        return username.trim().substring(0, 10);
+    }
+}
+
+const usernameCheck = localStorage.getItem('username') || (localStorage.setItem('username', getUsername()), 'Guest');
+const usernameLabel = document.querySelector('.start-menu .username');
+
+usernameLabel.innerHTML = usernameCheck;
+
+usernameLabel.addEventListener('click', () => {
+    localStorage.setItem('username', getUsername());
+    usernameLabel.innerHTML = localStorage.getItem('username');
+});
+
 document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
 
 const container = document.body;
@@ -44,7 +64,11 @@ container.addEventListener('mousemove', (e) => {
 container.addEventListener('mouseup', () => {
     isSelecting = false;
 
-    container.removeChild(selectionBox);
+    try {
+        container.removeChild(selectionBox);
+    } catch {
+        return;
+    }
 });
 
 window.addEventListener('mouseout', e => {
@@ -53,7 +77,7 @@ window.addEventListener('mouseout', e => {
 
         try {
             container.removeChild(selectionBox);
-        } catch (err) {
+        } catch {
             return;
         }
     }
@@ -68,7 +92,7 @@ function appGui(app = '') {
                 <div class="close"><i class="fa-light fa-xmark"></i></div>
             </div>
             <div class="body">
-                <textarea class="main" autofocus></textarea>
+                <textarea class="main" spellcheck="false" autofocus></textarea>
             </div>
         `;
     } else if (app == 'google') {
@@ -118,7 +142,12 @@ function appGui(app = '') {
             elmnt.style.left = elmnt.offsetLeft - currentPosX + 'px';
 
             isSelecting = false;
-            container.removeChild(selectionBox);
+
+            try {
+                container.removeChild(selectionBox);
+            } catch {
+                return;
+            }
         }
 
         function closeDragElement() {
@@ -252,17 +281,13 @@ function dateTime() {
 
 setInterval(dateTime, 1000);
 
-let themeLimiter = 0;
 
 document.querySelector('.themes').addEventListener('click', () => {
-    themeLimiter++;
     const win = document.createElement('theme-manager');
     document.body.appendChild(win);
 
     startMenu.isMenu = false;
     startMenu.menu.removeAttribute('style');
-
-    if (themeLimiter > 1) win.remove();
 });
 
 class ThemeManager extends HTMLElement {
@@ -274,10 +299,10 @@ class ThemeManager extends HTMLElement {
         this.innerHTML = `
         <div class="header">
             <span>Theme Manager</span>
-            <span><i class="fa-light fa-check"></i> Apply</span>
+            <span><i class="fa-light fa-floppy-disk"></i>&nbsp;&nbsp;Apply</span>
             <span><i class="fa-light fa-xmark"></i></span>
         </div>
-        <textarea></textarea>
+        <textarea spellcheck="false" placeholder="Write your CSS code here..."></textarea>
         `;
         setTimeout(() => this.style.opacity = 1);
 
@@ -285,15 +310,6 @@ class ThemeManager extends HTMLElement {
         textarea.focus();
 
         document.body.style.pointerEvents = 'none';
-
-        const closeBtn = this.querySelector('.header span:last-child');
-
-        closeBtn.addEventListener('click', () => {
-            this.style.opacity = 0;
-            setTimeout(() => this.remove(), 200);
-            themeLimiter = 0;
-            document.body.removeAttribute('style');
-        });
 
         const style = document.createElement('style');
         document.head.appendChild(style);
@@ -303,30 +319,75 @@ class ThemeManager extends HTMLElement {
                 style.innerHTML = textarea.value;
                 localStorage.setItem('theme', textarea.value);
             } else {
+                style.remove();
                 localStorage.removeItem('theme');
             }
         });
 
-        const closeChars = new Map([
-            ['{', '}'],
-            ['[', ']'],
-            ['(', ')'],
-            ['"', '"'],
-            ['\'', '\'']
-        ]);
+        const completions = document.createElement('div');
+        completions.classList.add('completions');
+        document.body.appendChild(completions);
 
-        textarea.addEventListener('input', function (e) {
-            const pos = e.target.selectionStart;
-            const val = [...e.target.value];
+        const openingBrackets = ['(', '{', '[', '"', '\''];
+        const closingBrackets = [')', '}', ']', '"', '\''];
 
-            const char = val.slice(pos - 1, pos)[0];
-            const closeChar = closeChars.get(char);
+        textarea.addEventListener('input', () => {
+            const cursorPosition = textarea.selectionStart;
 
-            if (closeChar) {
-                val.splice(pos, 0, closeChar);
-                e.target.value = val.join('');
-                e.target.selectionEnd = pos;
+            const value = textarea.value;
+            const currentLineStart = value.lastIndexOf('\n', cursorPosition - 1) + 1;
+            const currentLine = value.substring(currentLineStart, cursorPosition);
+            const searchString = currentLine.trim();
+            if (searchString !== '') {
+                fetch(`https://css-properties-api.darksidex37.repl.co/?search=${searchString}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        completions.innerHTML = '';
+
+                        if (data.length > 0) {
+                            completions.style.display = 'block';
+
+                            for (let i = 0; i < data.length; i++) {
+                                const elmnt = document.createElement('div');
+                                elmnt.innerHTML = data[i];
+                                completions.appendChild(elmnt);
+
+                                elmnt.addEventListener('click', () => {
+                                    textarea.value = value.substring(0, currentLineStart) + data[i] + value.substring(cursorPosition);
+                                    textarea.setSelectionRange(cursorPosition + data[i].length - searchString.length, cursorPosition + data[i].length - searchString.length);
+                                    completions.style.display = 'none';
+                                    textarea.focus();
+                                });
+                            }
+                        } else {
+                            completions.style.display = 'none';
+                        }
+                    })
+                    .catch(err => {
+                        completions.innerHTML = `Error occurred:<br>${err}`;
+                    });
+            } else {
+                completions.style.display = 'none';
             }
+        });
+
+        textarea.addEventListener('keydown', e => {
+            const cursorPosition = textarea.selectionStart;
+
+            if (openingBrackets.includes(e.key)) {
+                e.preventDefault();
+                textarea.value = textarea.value.slice(0, cursorPosition) + e.key + closingBrackets[openingBrackets.indexOf(e.key)] + textarea.value.slice(cursorPosition);
+                textarea.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
+            }
+        });
+
+        const closeBtn = this.querySelector('.header span:last-child');
+
+        closeBtn.addEventListener('click', () => {
+            this.style.opacity = 0;
+            setTimeout(() => this.remove(), 200);
+            document.body.removeAttribute('style');
+            completions.remove();
         });
 
         document.addEventListener('keyup', e => {
