@@ -105,7 +105,66 @@ function appGui(app = '') {
                 <iframe src="https://www.google.com/?igu=1" class="main" oncontextmenu="return false;"></iframe>
             </div>
         `;
+    } else if (app == 'calculator') {
+        win.innerHTML = `
+            <div class="header">
+                <div class="title">Calculator</div>
+                <div class="close"><i class="fa-light fa-xmark"></i></div>
+            </div>
+            <div class="body">
+                <br>
+                <br>
+                <center>
+                    <input type="text" disabled>
+                    <div class="numbers_operators">
+                        <div class="calc-opt num">1</div>
+                        <div class="calc-opt num">2</div>
+                        <div class="calc-opt num">3</div>
+                        <div class="calc-opt op">-</div>
+                        <div class="calc-opt num">4</div>
+                        <div class="calc-opt num">5</div>
+                        <div class="calc-opt num">6</div>
+                        <div class="calc-opt op">/</div>
+                        <div class="calc-opt num">7</div>
+                        <div class="calc-opt num">8</div>
+                        <div class="calc-opt num">9</div>
+                        <div class="calc-opt op">+</div>
+                        <div class="calc-opt op">*</div>
+                        <div class="calc-opt num">0</div>
+                        <div class="calc-opt op">.</div>
+                        <div class="calc-opt op">=</div>
+                    </div>
+                <center>
+            </div>
+        `;
+
+        win.style.width = '326px';
+        win.style.height = '370px';
+        win.style.resize = 'none';
+
+        const inputField = win.querySelector('.body input');
+
+        win.querySelectorAll('.body .calc-opt').forEach(opt => {
+            opt.addEventListener('click', () => {
+                switch (opt.innerHTML) {
+                    case '=':
+                        inputField.value = eval(inputField.value);
+                        break;
+                    default:
+                        inputField.value += opt.innerHTML;
+                }
+            });
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key == 'Backspace') {
+                inputField.value = inputField.value.slice(0, -1);
+            } else if (e.key == 'Enter') {
+                document.querySelector('.body .op:last-child').click();
+            }
+        });
     }
+
     win.classList.add('window', app);
     document.body.appendChild(win);
 
@@ -184,8 +243,10 @@ document.querySelectorAll('.app').forEach(app => {
     app.addEventListener('dblclick', () => {
         if (app.classList.contains('notepad')) {
             appGui('notepad');
-        } else {
+        } else if (app.classList.contains('google')) {
             appGui('google');
+        } else if (app.classList.contains('calc')) {
+            appGui('calculator');
         }
     });
 });
@@ -228,6 +289,9 @@ document.querySelectorAll('.taskbar img').forEach(icon => {
             case /google/gi.test(icon.getAttribute('src')):
                 appGui('google');
                 break;
+            case /calculator/gi.test(icon.getAttribute('src')):
+                appGui('calculator');
+                break;
         }
 
         searchField.value = '';
@@ -244,6 +308,8 @@ document.querySelectorAll('.start-menu img').forEach(app => {
             appGui('notepad');
         } else if (/google/gi.test(app.src)) {
             appGui('google');
+        } else if (/calculator/gi.test(app.src)) {
+            appGui('calculator');
         }
 
         startMenu.isMenu = false;
@@ -338,6 +404,7 @@ class ThemeManager extends HTMLElement {
             const currentLineStart = value.lastIndexOf('\n', cursorPosition - 1) + 1;
             const currentLine = value.substring(currentLineStart, cursorPosition);
             const searchString = currentLine.trim();
+
             if (searchString !== '') {
                 fetch(`https://css-properties-api.darksidex37.repl.co/?search=${searchString}`)
                     .then(res => res.json())

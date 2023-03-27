@@ -36,7 +36,7 @@ img {
   justify-content: center;
   position: relative;
   margin-bottom: 20px;
-  border-radius: 5px;
+  border-radius: 8px;
   border: 1px solid transparent;
 }
 .app-sort .app:hover {
@@ -221,6 +221,36 @@ img {
   padding: 1.5px !important;
   width: calc(100% + 13px) !important;
   height: calc(100% - 17px) !important;
+}
+.window .body input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #2e2e2e;
+  min-width: 2.68in;
+}
+.window .body .numbers_operators {
+  margin-top: 7px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.window .body .numbers_operators .calc-opt {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  margin: 5px;
+  background-color: #2e2e2e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 200ms;
+}
+.window .body .numbers_operators .calc-opt:hover {
+  background-color: #333;
 }
 
 theme-manager {
