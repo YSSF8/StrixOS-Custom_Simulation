@@ -227,12 +227,14 @@ img {
   border-radius: 8px;
   border: 1px solid #444;
   background-color: #2e2e2e;
-  min-width: 2.68in;
+  min-width: 2.48in;
 }
 .window .body .numbers_operators {
   margin-top: 7px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 0fr);
+  gap: 3px;
+  align-items: center;
   justify-content: center;
 }
 .window .body .numbers_operators .calc-opt {
@@ -242,7 +244,6 @@ img {
   justify-content: center;
   align-items: center;
   font-size: 24px;
-  margin: 5px;
   background-color: #2e2e2e;
   border: 1px solid #444;
   border-radius: 8px;
@@ -251,6 +252,38 @@ img {
 }
 .window .body .numbers_operators .calc-opt:hover {
   background-color: #333;
+}
+.window .body .numbers_operators .op:last-child {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+.window .body .numbers_operators .op:last-child:hover {
+  background-color: var(--accent-drk);
+}
+
+.ctx-menu {
+  background-color: rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: var(--blur);
+          backdrop-filter: var(--blur);
+  border: 1px solid var(--drk-gry);
+  width: -moz-max-content;
+  width: max-content;
+  padding: 7px;
+  border-radius: 10px;
+  position: fixed;
+  transform: scale(0);
+  z-index: 999;
+}
+.ctx-menu div {
+  padding: 7px;
+  border-radius: 8px;
+  transition: background 200ms;
+}
+.ctx-menu div:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.ctx-menu hr {
+  border-color: var(--drk-gry);
 }
 
 theme-manager {
@@ -365,6 +398,25 @@ theme-manager textarea::-webkit-scrollbar-thumb:hover {
   border-radius: 10px;
   pointer-events: none;
   z-index: -1;
+}
+
+.app-tag {
+  background-color: rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: var(--blur);
+          backdrop-filter: var(--blur);
+  width: -moz-max-content;
+  width: max-content;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--drk-gry);
+  position: fixed;
+  transform: scale(0.7);
+  opacity: 0;
+  transform-origin: bottom center;
+  pointer-events: none;
+  z-index: 998;
+  transition: 100ms;
+  transition-property: transform, opacity;
 }
 
 :root {

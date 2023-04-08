@@ -1,27 +1,65 @@
-fetch('https://BingoAPI.darksidex37.repl.co')
+fetch('https://bingoapi.darksidex37.repl.co')
     .then(res => res.json())
     .then(data => {
         document.querySelector('.bg').src = data.url;
     });
 
 function getUsername() {
-    const username = prompt('Username (Optional, max 10 characters):');
+    let username = prompt('Username (Optional, max 10 characters):');
 
-    if (username === null || username === undefined || username.trim() === '') {
+    if (!username || username.trim() === '') {
         return 'Guest';
-    } else {
-        return username.trim().substring(0, 10);
     }
+
+    username = username.replace(/\s+/g, '');
+
+    return username.substring(0, 10);
 }
 
 const usernameCheck = localStorage.getItem('username') || (localStorage.setItem('username', getUsername()), 'Guest');
 const usernameLabel = document.querySelector('.start-menu .username');
 
-usernameLabel.innerHTML = usernameCheck;
+usernameLabel.innerHTML = localStorage.getItem('username');
 
 usernameLabel.addEventListener('click', () => {
     localStorage.setItem('username', getUsername());
     usernameLabel.innerHTML = localStorage.getItem('username');
+});
+
+const ctxMenu = document.querySelector('.ctx-menu');
+
+document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+
+    let x = e.clientX, y = e.clientY;
+
+    ctxMenu.style.left = x + 'px';
+    ctxMenu.style.top = y + 'px';
+    ctxMenu.style.transform = 'scale(1)';
+
+    const rect = ctxMenu.getBoundingClientRect();
+
+    if ((rect.x + rect.width) >= window.innerWidth) {
+        ctxMenu.style.left = `${x - rect.width}px`;
+    }
+    if ((rect.y + rect.height) >= window.innerHeight) {
+        ctxMenu.style.top = `${y - rect.height}px`;
+    }
+});
+
+document.addEventListener('click', () => {
+    ctxMenu.style.transform = 'scale(0)';
+});
+
+ctxMenu.querySelectorAll('div').forEach(option => {
+    option.addEventListener('click', () => {
+        if (option.classList.contains('username')) {
+            localStorage.setItem('username', getUsername());
+            usernameLabel.innerHTML = localStorage.getItem('username');
+        } else if (option.classList.contains('restart')) {
+            location.reload();
+        }
+    });
 });
 
 document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
@@ -117,6 +155,10 @@ function appGui(app = '') {
                 <center>
                     <input type="text" disabled>
                     <div class="numbers_operators">
+                        <div class="calc-opt op">(</div>
+                        <div class="calc-opt op">)</div>
+                        <div class="calc-opt op">%</div>
+                        <div class="calc-opt op"><i class="fa-light fa-delete-left"></i></div>
                         <div class="calc-opt num">1</div>
                         <div class="calc-opt num">2</div>
                         <div class="calc-opt num">3</div>
@@ -138,8 +180,8 @@ function appGui(app = '') {
             </div>
         `;
 
-        win.style.width = '326px';
-        win.style.height = '370px';
+        win.style.width = '274px';
+        win.style.height = '410px';
         win.style.resize = 'none';
 
         const inputField = win.querySelector('.body input');
@@ -148,10 +190,25 @@ function appGui(app = '') {
             opt.addEventListener('click', () => {
                 switch (opt.innerHTML) {
                     case '=':
-                        inputField.value = eval(inputField.value);
+                        if (inputField.value != '') {
+                            try {
+                                inputField.value = eval(inputField.value);
+                            } catch {
+                                return;
+                            }
+                        }
+                        break;
+                    case '<i class="fa-light fa-delete-left"></i>':
+                        inputField.value = inputField.value.slice(0, -1);
                         break;
                     default:
                         inputField.value += opt.innerHTML;
+                }
+            });
+
+            document.addEventListener('keyup', e => {
+                if (e.key == opt.innerHTML) {
+                    inputField.value += opt.innerHTML;
                 }
             });
         });
@@ -167,6 +224,12 @@ function appGui(app = '') {
 
     win.classList.add('window', app);
     document.body.appendChild(win);
+
+    win.addEventListener('contextmenu', () => {
+        setTimeout(() => {
+            ctxMenu.style.transform = 'scale(0)';
+        });
+    });
 
     function makeDraggable(elmnt) {
         let currentPosX = 0,
@@ -271,6 +334,8 @@ searchField.addEventListener('input', () => {
     }
 });
 
+let appNameLimit = 0;
+
 document.querySelectorAll('.taskbar img').forEach(icon => {
     icon.addEventListener('click', () => {
         switch (true) {
@@ -300,6 +365,32 @@ document.querySelectorAll('.taskbar img').forEach(icon => {
             apps[i].style.display = '';
         }
     });
+
+    icon.addEventListener('mousemove', () => {
+        appNameLimit++;
+
+        const elmnt = document.createElement('div');
+        elmnt.innerHTML = icon.getAttribute('data-tag');
+        elmnt.classList.add('app-tag');
+        document.body.appendChild(elmnt);
+
+        setTimeout(() => {
+            elmnt.style.transform = 'scale(.8)';
+            elmnt.style.opacity = 1;
+        });
+
+        const rect = icon.getBoundingClientRect();
+
+        elmnt.style.left = `${rect.x + (rect.width / 2) - (elmnt.offsetWidth / 2)}px`;
+        elmnt.style.top = `${rect.y - 40}px`;
+
+        if (appNameLimit > 1) elmnt.remove();
+    });
+
+    icon.addEventListener('mouseout', () => {
+        document.querySelector('.app-tag').remove();
+        appNameLimit = 0;
+    });
 });
 
 document.querySelectorAll('.start-menu img').forEach(app => {
@@ -315,10 +406,6 @@ document.querySelectorAll('.start-menu img').forEach(app => {
         startMenu.isMenu = false;
         startMenu.menu.removeAttribute('style');
     });
-});
-
-document.addEventListener('contextmenu', e => {
-    e.preventDefault();
 });
 
 document.querySelector('.lang').innerHTML = navigator.language;
@@ -346,7 +433,6 @@ function dateTime() {
 }
 
 setInterval(dateTime, 1000);
-
 
 document.querySelector('.themes').addEventListener('click', () => {
     const win = document.createElement('theme-manager');

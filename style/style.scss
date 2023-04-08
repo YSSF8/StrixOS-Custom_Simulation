@@ -241,13 +241,15 @@ img {
             border-radius: 8px;
             border: 1px solid #444;
             background-color: #2e2e2e;
-            min-width: 2.68in;
+            min-width: 2.48in;
         }
 
         .numbers_operators {
             margin-top: 7px;
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(4, 0fr);
+            gap: 3px;
+            align-items: center;
             justify-content: center;
 
             .calc-opt {
@@ -257,7 +259,6 @@ img {
                 justify-content: center;
                 align-items: center;
                 font-size: 24px;
-                margin: 5px;
                 background-color: #2e2e2e;
                 border: 1px solid #444;
                 border-radius: 8px;
@@ -268,7 +269,42 @@ img {
                     background-color: #333;
                 }
             }
+
+            .op:last-child {
+                background-color: var(--accent);
+                border-color: var(--accent);
+
+                &:hover {
+                    background-color: var(--accent-drk);
+                }
+            }
         }
+    }
+}
+
+.ctx-menu {
+    background-color: rgba(0, 0, 0, .4);
+    backdrop-filter: var(--blur);
+    border: 1px solid var(--drk-gry);
+    width: max-content;
+    padding: 7px;
+    border-radius: 10px;
+    position: fixed;
+    transform: scale(0);
+    z-index: 999;
+
+    div {
+        padding: 7px;
+        border-radius: 8px;
+        transition: background 200ms;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, .4);
+        }
+    }
+
+    hr {
+        border-color: var(--drk-gry);
     }
 }
 
@@ -395,6 +431,23 @@ theme-manager {
     border-radius: 10px;
     pointer-events: none;
     z-index: -1;
+}
+
+.app-tag {
+    background-color: rgba(0, 0, 0, .4);
+    backdrop-filter: var(--blur);
+    width: max-content;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--drk-gry);
+    position: fixed;
+    transform: scale(.7);
+    opacity: 0;
+    transform-origin: bottom center;
+    pointer-events: none;
+    z-index: 998;
+    transition: 100ms;
+    transition-property: transform, opacity;
 }
 
 :root {
