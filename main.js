@@ -58,6 +58,9 @@ ctxMenu.querySelectorAll('div').forEach(option => {
             usernameLabel.innerHTML = localStorage.getItem('username');
         } else if (option.classList.contains('restart')) {
             location.reload();
+        } else if (option.classList.contains('theming')) {
+            const theme = document.createElement('theme-manager');
+            document.body.appendChild(theme);
         }
     });
 });
@@ -127,12 +130,70 @@ function appGui(app = '') {
         win.innerHTML = `
             <div class="header">
                 <div class="title">Notepad</div>
+                <div class="options">
+                    <button id="save"><i class="fa-light fa-floppy-disk"></i> Save</button>
+                    <button id="load"><i class="fa-light fa-upload"></i> Open</button>
+                </div>
                 <div class="close"><i class="fa-light fa-xmark"></i></div>
             </div>
             <div class="body">
                 <textarea class="main" spellcheck="false" autofocus></textarea>
             </div>
         `;
+
+        win.style.minWidth = '322px';
+
+        const save = win.querySelector('#save');
+        const load = win.querySelector('#load');
+        const textarea = win.querySelector('textarea');
+
+        save.addEventListener('click', () => {
+            if (textarea.value == '') {
+                return;
+            }
+
+            const saveDialog = prompt('Save as:', 'File.txt');
+
+            if (saveDialog == '' || saveDialog == null || saveDialog == undefined) {
+                return;
+            }
+
+            const blob = new Blob([textarea.value], { type: 'text/plain' });
+            const objURL = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = objURL;
+            a.download = saveDialog;
+            document.body.appendChild(a);
+            a.click();
+
+            setTimeout(() => {
+                a.remove();
+                URL.revokeObjectURL(blob);
+            });
+        });
+
+        load.addEventListener('click', () => {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.style.visibility = 'hidden';
+            document.body.appendChild(fileInput);
+
+            fileInput.addEventListener('change', e => {
+                const file = e.target.files[0];
+                const fr = new FileReader();
+
+                fr.addEventListener('load', e => {
+                    const content = e.target.result;
+                    textarea.value = content;
+                });
+
+                fr.readAsText(file);
+            });
+
+            fileInput.click();
+            fileInput.remove();
+        });
     } else if (app == 'google') {
         win.innerHTML = `
             <div class="header">
@@ -155,10 +216,14 @@ function appGui(app = '') {
                 <center>
                     <input type="text" disabled>
                     <div class="numbers_operators">
+                        <div class="calc-opt op"><i class="fa-light fa-square-root"></i></div>
+                        <div class="calc-opt op"><i class="fa-light fa-value-absolute"></i></div>
+                        <div class="calc-opt op"><i class="fa-light fa-superscript"></i></div>
+                        <div class="calc-opt op"><i class="fa-light fa-delete-left"></i></div>
+                        <div class="calc-opt op"><i class="fa-solid fa-exclamation"></i></div>
                         <div class="calc-opt op">(</div>
                         <div class="calc-opt op">)</div>
-                        <div class="calc-opt op">%</div>
-                        <div class="calc-opt op"><i class="fa-light fa-delete-left"></i></div>
+                        <div class="calc-opt op">*</div>
                         <div class="calc-opt num">1</div>
                         <div class="calc-opt num">2</div>
                         <div class="calc-opt num">3</div>
@@ -171,7 +236,7 @@ function appGui(app = '') {
                         <div class="calc-opt num">8</div>
                         <div class="calc-opt num">9</div>
                         <div class="calc-opt op">+</div>
-                        <div class="calc-opt op">*</div>
+                        <div class="calc-opt op"><i class="fa-light fa-pi"></i></div>
                         <div class="calc-opt num">0</div>
                         <div class="calc-opt op">.</div>
                         <div class="calc-opt op">=</div>
@@ -181,10 +246,18 @@ function appGui(app = '') {
         `;
 
         win.style.width = '274px';
-        win.style.height = '410px';
+        win.style.height = '476px';
         win.style.resize = 'none';
 
         const inputField = win.querySelector('.body input');
+
+        Math['fact'] = (n) => {
+            if (n === 0 || n === 1) {
+                return 1;
+            } else {
+                return n * Math['fact'](n - 1);
+            }
+        };
 
         win.querySelectorAll('.body .calc-opt').forEach(opt => {
             opt.addEventListener('click', () => {
@@ -192,6 +265,10 @@ function appGui(app = '') {
                     case '=':
                         if (inputField.value != '') {
                             try {
+                                inputField.value = inputField.value.replace(/sqrt\((.*?)\)/g, 'Math.sqrt($1)');
+                                inputField.value = inputField.value.replace(/abs\((.*?)\)/g, 'Math.abs($1)');
+                                inputField.value = inputField.value.replace(/([0-9])pow\((.*?)\)/g, 'Math.pow($1, $2)');
+                                inputField.value = inputField.value.replace(/fact\((.*?)\)/g, 'Math.fact($1)');
                                 inputField.value = eval(inputField.value);
                             } catch {
                                 return;
@@ -200,6 +277,21 @@ function appGui(app = '') {
                         break;
                     case '<i class="fa-light fa-delete-left"></i>':
                         inputField.value = inputField.value.slice(0, -1);
+                        break;
+                    case '<i class="fa-light fa-pi"></i>':
+                        inputField.value += Math.PI;
+                        break;
+                    case '<i class="fa-light fa-square-root"></i>':
+                        inputField.value += 'sqrt(';
+                        break;
+                    case '<i class="fa-light fa-value-absolute"></i>':
+                        inputField.value += 'abs(';
+                        break;
+                    case '<i class="fa-light fa-superscript"></i>':
+                        inputField.value += 'pow(';
+                        break;
+                    case '<i class="fa-solid fa-exclamation"></i>':
+                        inputField.value += 'fact(';
                         break;
                     default:
                         inputField.value += opt.innerHTML;
@@ -230,6 +322,18 @@ function appGui(app = '') {
             ctxMenu.style.transform = 'scale(0)';
         });
     });
+
+    const resizeObserver = new ResizeObserver(entries => {
+        for (let i of entries) {
+            try {
+                container.removeChild(selectionBox);
+            } catch {
+                return;
+            }
+        }
+    });
+
+    resizeObserver.observe(win);
 
     function makeDraggable(elmnt) {
         let currentPosX = 0,
@@ -338,8 +442,8 @@ let appNameLimit = 0;
 
 document.querySelectorAll('.taskbar img').forEach(icon => {
     icon.addEventListener('click', () => {
-        switch (true) {
-            case /logo/gi.test(icon.getAttribute('src')):
+        switch (icon.getAttribute('src').match(/(?<=img\/).+(?=\.png)/g)[0]) {
+            case 'logo':
                 startMenu.isMenu = !startMenu.isMenu;
 
                 if (startMenu.isMenu) {
@@ -348,13 +452,13 @@ document.querySelectorAll('.taskbar img').forEach(icon => {
                     startMenu.menu.removeAttribute('style');
                 }
                 break;
-            case /texteditor/gi.test(icon.getAttribute('src')):
+            case 'texteditor':
                 appGui('notepad');
                 break;
-            case /google/gi.test(icon.getAttribute('src')):
+            case 'google':
                 appGui('google');
                 break;
-            case /calculator/gi.test(icon.getAttribute('src')):
+            case 'calculator':
                 appGui('calculator');
                 break;
         }
@@ -395,12 +499,16 @@ document.querySelectorAll('.taskbar img').forEach(icon => {
 
 document.querySelectorAll('.start-menu img').forEach(app => {
     app.addEventListener('click', () => {
-        if (/texteditor/gi.test(app.src)) {
-            appGui('notepad');
-        } else if (/google/gi.test(app.src)) {
-            appGui('google');
-        } else if (/calculator/gi.test(app.src)) {
-            appGui('calculator');
+        switch (app.src.match(/(?<=img\/).+(?=\.png)/g)[0]) {
+            case 'texteditor':
+                appGui('notepad');
+                break;
+            case 'google':
+                appGui('google');
+                break;
+            case 'calculator':
+                appGui('calculator');
+                break;
         }
 
         startMenu.isMenu = false;
@@ -416,6 +524,7 @@ function dateTime() {
     const date = {
         hours: addZero(time.getHours()),
         minutes: addZero(time.getMinutes()),
+        seconds: addZero(time.getSeconds()),
         day: addZero(time.getDate()),
         month: addZero(time.getMonth() + 1),
         year: time.getFullYear()
@@ -423,8 +532,9 @@ function dateTime() {
 
     document.querySelector('.hrs').innerHTML = date.hours;
     document.querySelector('.mins').innerHTML = date.minutes;
-    document.querySelector('.day').innerHTML = date.day;
+    document.querySelector('.secs').innerHTML = date.seconds;
     document.querySelector('.month').innerHTML = date.month;
+    document.querySelector('.day').innerHTML = date.day;
     document.querySelector('.yr').innerHTML = date.year;
 
     function addZero(num) {
@@ -480,6 +590,14 @@ class ThemeManager extends HTMLElement {
         completions.classList.add('completions');
         document.body.appendChild(completions);
 
+        completions.addEventListener('mousemove', () => {
+            try {
+                container.removeChild(selectionBox);
+            } catch {
+                return;
+            }
+        });
+
         const openingBrackets = ['(', '{', '[', '"', '\''];
         const closingBrackets = [')', '}', ']', '"', '\''];
 
@@ -518,6 +636,7 @@ class ThemeManager extends HTMLElement {
                     })
                     .catch(err => {
                         completions.innerHTML = `Error occurred:<br>${err}`;
+                        completions.style.display = 'block';
                     });
             } else {
                 completions.style.display = 'none';
