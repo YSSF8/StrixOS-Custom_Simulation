@@ -132,7 +132,7 @@ function appGui(app = '') {
                 <div class="title">Notepad</div>
                 <div class="options">
                     <button id="save"><i class="fa-light fa-floppy-disk"></i> Save</button>
-                    <button id="load"><i class="fa-light fa-upload"></i> Open</button>
+                    <button id="load"><i class="fa-light fa-folder-open"></i> Open</button>
                 </div>
                 <div class="close"><i class="fa-light fa-xmark"></i></div>
             </div>
@@ -176,7 +176,6 @@ function appGui(app = '') {
         load.addEventListener('click', () => {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.style.visibility = 'hidden';
             document.body.appendChild(fileInput);
 
             fileInput.addEventListener('change', e => {
@@ -251,8 +250,8 @@ function appGui(app = '') {
 
         const inputField = win.querySelector('.body input');
 
-        Math['fact'] = (n) => {
-            if (n === 0 || n === 1) {
+        Math['fact'] = n => {
+            if (n == 0 || n == 1) {
                 return 1;
             } else {
                 return n * Math['fact'](n - 1);
@@ -267,7 +266,7 @@ function appGui(app = '') {
                             try {
                                 inputField.value = inputField.value.replace(/sqrt\((.*?)\)/g, 'Math.sqrt($1)');
                                 inputField.value = inputField.value.replace(/abs\((.*?)\)/g, 'Math.abs($1)');
-                                inputField.value = inputField.value.replace(/([0-9])pow\((.*?)\)/g, 'Math.pow($1, $2)');
+                                inputField.value = inputField.value.replace(/(\d+)pow\((.*?)\)/g, 'Math.pow($1, $2)');
                                 inputField.value = inputField.value.replace(/fact\((.*?)\)/g, 'Math.fact($1)');
                                 inputField.value = eval(inputField.value);
                             } catch {
@@ -392,7 +391,9 @@ function appGui(app = '') {
 
     makeDraggable(win);
 
-    setTimeout(() => win.style.transform = 'translate(-50%, -50%) scale(1)');
+    setTimeout(() => {
+        win.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
 
     const closeBtn = win.querySelector('.header .close');
 
@@ -522,23 +523,32 @@ function dateTime() {
     const time = new Date();
 
     const date = {
-        hours: addZero(time.getHours()),
+        hours: addZero(get12HourFormat(time.getHours())),
         minutes: addZero(time.getMinutes()),
         seconds: addZero(time.getSeconds()),
         day: addZero(time.getDate()),
         month: addZero(time.getMonth() + 1),
-        year: time.getFullYear()
-    }
+        year: time.getFullYear(),
+        ampm: getAMPM(time.getHours())
+    };
 
     document.querySelector('.hrs').innerHTML = date.hours;
     document.querySelector('.mins').innerHTML = date.minutes;
-    document.querySelector('.secs').innerHTML = date.seconds;
     document.querySelector('.month').innerHTML = date.month;
     document.querySelector('.day').innerHTML = date.day;
     document.querySelector('.yr').innerHTML = date.year;
+    document.querySelector('.ampm').innerHTML = date.ampm;
 
     function addZero(num) {
         return num < 10 ? `0${num}` : num;
+    }
+
+    function get12HourFormat(hours) {
+        return hours % 12 || 12;
+    }
+
+    function getAMPM(hours) {
+        return hours >= 12 ? 'PM' : 'AM';
     }
 }
 
