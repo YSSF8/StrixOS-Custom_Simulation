@@ -269,7 +269,7 @@ img {
   width: calc(100% + 13px) !important;
   height: calc(100% - 17px) !important;
 }
-.window .body input {
+.window .body .calc-input {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #444;
@@ -309,6 +309,24 @@ img {
 }
 .window .body .numbers_operators .op:last-child:hover {
   background-color: var(--accent-drk);
+}
+.window .body .terminal-input {
+  outline: none;
+  background-color: #2e2e2e;
+  border: 1px solid #444;
+  width: calc(100% - 1.4rem);
+  margin-top: 2rem;
+  padding: 10px;
+  border-radius: 8px;
+}
+.window .body .terminal-output {
+  overflow: auto;
+  height: calc(100% - 4.3rem);
+  padding: 7px 3px;
+  word-wrap: break-word;
+}
+.window .body .terminal-output .terminal-line {
+  margin: 5px 0;
 }
 
 .ctx-menu {

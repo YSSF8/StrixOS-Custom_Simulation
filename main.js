@@ -235,7 +235,7 @@ function appGui(app = '') {
                 <br>
                 <br>
                 <center>
-                    <input type="text" disabled>
+                    <input type="text" class="calc-input" disabled>
                     <div class="numbers_operators">
                         <div class="calc-opt op"><i class="fa-light fa-square-root"></i></div>
                         <div class="calc-opt op"><i class="fa-light fa-value-absolute"></i></div>
@@ -328,6 +328,87 @@ function appGui(app = '') {
                 inputField.value = inputField.value.slice(0, -1);
             } else if (e.key == 'Enter') {
                 document.querySelector('.body .op:last-child').click();
+            }
+        });
+    } else if (app == 'terminal') {
+        win.innerHTML = `
+            <div class="header">
+                <div class="flexible-title">
+                    <img src="./img/terminal.png" height="20" width="20" alt="">
+                    <div class="title">Terminal</div>
+                </div>
+                <div class="close"><i class="fa-light fa-xmark"></i></div>
+            </div>
+            <div class="body">
+                <input type="text" placeholder="Type command here..." class="terminal-input">
+                <div class="terminal-output"></div>
+            </div>
+        `;
+
+        const terminalInput = win.querySelector('.body input');
+        const terminalOutput = win.querySelector('.body .terminal-output');
+
+        setTimeout(() => terminalInput.focus(), 200);
+
+        terminalInput.addEventListener('keyup', e => {
+            if (e.key === 'Enter') {
+                if (terminalInput.value == '') {
+                    return;
+                }
+
+                const command = terminalInput.value.trim();
+
+                if (command === 'clear' || command === 'cls') {
+                    terminalOutput.innerHTML = '';
+                    terminalInput.value = '';
+                    return;
+                } else if (/^echo\s+(.*)$/gi.test(command)) {
+                    const text = command.replace(/^echo\s+(.*)$/gi, '$1');
+                    terminalOutput.innerHTML += `<div class="terminal-line">${text}</div>`;
+                } else if (/^color\s+([a-zA-Z]+)$/gi.test(command)) {
+                    const color = command.replace(/^color\s+([a-zA-Z]+)$/gi, '$1');
+                    const nestedElements = terminalOutput.querySelectorAll('.terminal-line');
+
+                    nestedElements.forEach(element => {
+                        element.style.color = color;
+                    });
+                } else if (command == 'date') {
+                    const date = new Date();
+                    const hours = date.getHours();
+                    let minutes = date.getMinutes();
+                    const amPM = hours >= 12 ? 'PM' : 'AM';
+                    const formattedHours = hours % 12 || 12;
+
+                    minutes = minutes < 10 ? `0${minutes}` : minutes;
+
+                    terminalOutput.innerHTML += `<div class="terminal-line">${formattedHours}:${minutes} ${amPM} ${date.toLocaleDateString()}</div>`;
+                } else if (command == 'close' || command == 'exit' || command == 'quit') {
+                    win.style.transform = 'translate(-50%, -50%) scale(0)';
+                    setTimeout(() => closeBtn.parentElement.parentElement.remove(), 200);
+                } else if (/^calc\s+(.*)$/gi.test(command)) {
+                    const expression = command.replace(/^calc\s+(.*)$/gi, '$1');
+                    try {
+                        const result = eval(expression);
+                        terminalOutput.innerHTML += `<div class="terminal-line">${expression} = ${result}</div>`;
+                    } catch (error) {
+                        terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid expression</div>`;
+                    }
+                }
+                else if (command == 'help') {
+                    terminalOutput.innerHTML += '<div class="terminal-line"><b>Help list</b></div>';
+                    terminalOutput.innerHTML += '<div class="terminal-line">clear/cls - clear the terminal</div>';
+                    terminalOutput.innerHTML += '<div class="terminal-line">echo <text> - print text</div>';
+                    terminalOutput.innerHTML += '<div class="terminal-line">color <color> - change text color</div>';
+                    terminalOutput.innerHTML += '<div class="terminal-line">date - print current date</div>';
+                    terminalOutput.innerHTML += '<div class="terminal-line">close/exit/quit - close the terminal</div>';
+                    terminalOutput.innerHTML += '<div class="terminal-line">calc <expression> - calculate an expression</div>';
+                    terminalOutput.innerHTML += '<div class="terminal-line">help - print this list</div>';
+                } else {
+                    terminalOutput.innerHTML += `<div class="terminal-line">'${command}' is not recognized as an internal or external command, operable program, or batch file.</div>`;
+                }
+
+                terminalInput.value = '';
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
             }
         });
     }
@@ -428,12 +509,19 @@ function appGui(app = '') {
 
 document.querySelectorAll('.app').forEach(app => {
     app.addEventListener('dblclick', () => {
-        if (app.classList.contains('notepad')) {
-            appGui('notepad');
-        } else if (app.classList.contains('google')) {
-            appGui('google');
-        } else if (app.classList.contains('calc')) {
-            appGui('calculator');
+        switch (app.className.match(/(?<=app\s).+/g)[0]) {
+            case 'notepad':
+                appGui('notepad');
+                break;
+            case 'google':
+                appGui('google');
+                break;
+            case 'calc':
+                appGui('calculator');
+                break;
+            case 'terminal':
+                appGui('terminal');
+                break;
         }
     });
 });
@@ -480,6 +568,9 @@ document.querySelectorAll('.taskbar img').forEach(icon => {
                 break;
             case 'calculator':
                 appGui('calculator');
+                break;
+            case 'terminal':
+                appGui('terminal');
                 break;
         }
 
@@ -529,6 +620,9 @@ document.querySelectorAll('.start-menu img').forEach(app => {
             case 'calculator':
                 appGui('calculator');
                 break;
+            case 'terminal':
+                appGui('terminal');
+                break;
         }
 
         startMenu.isMenu = false;
@@ -542,7 +636,7 @@ function dateTime() {
     const time = new Date();
 
     const date = {
-        hours: addZero(get12HourFormat(time.getHours())),
+        hours: get12HourFormat(time.getHours()),
         minutes: addZero(time.getMinutes()),
         seconds: addZero(time.getSeconds()),
         day: addZero(time.getDate()),
@@ -553,6 +647,7 @@ function dateTime() {
 
     document.querySelector('.hrs').innerHTML = date.hours;
     document.querySelector('.mins').innerHTML = date.minutes;
+    document.querySelector('.secs').innerHTML = date.seconds;
     document.querySelector('.month').innerHTML = date.month;
     document.querySelector('.day').innerHTML = date.day;
     document.querySelector('.yr').innerHTML = date.year;

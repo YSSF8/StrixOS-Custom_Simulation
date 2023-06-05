@@ -290,7 +290,7 @@ img {
             height: calc(100% - 17px) !important;
         }
 
-        input {
+        .calc-input {
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #444;
@@ -334,6 +334,27 @@ img {
                 &:hover {
                     background-color: var(--accent-drk);
                 }
+            }
+        }
+
+        .terminal-input {
+            outline: none;
+            background-color: #2e2e2e;
+            border: 1px solid #444;
+            width: calc(100% - 1.4rem);
+            margin-top: 2rem;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .terminal-output {
+            overflow: auto;
+            height: calc(100% - 4.3rem);
+            padding: 7px 3px;
+            word-wrap: break-word;
+
+            .terminal-line {
+                margin: 5px 0;
             }
         }
     }
