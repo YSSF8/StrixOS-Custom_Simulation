@@ -5,12 +5,13 @@ fetch('https://bingoapi.darksidex37.repl.co')
     });
 
 function getUsername() {
-    let username = prompt('Username (Optional, max 10 characters):');
+    let username = prompt('Username (Optional, max 10 characters):', localStorage.getItem('username') == null ? '' : localStorage.getItem('username'));
 
+    if (username == null) {
+        return localStorage.getItem('username') ? localStorage.getItem('username') : 'Guest';
+    }
     if (username.trim() === '') {
         return 'Guest';
-    } else if (username == null) {
-        return;
     }
 
     username = username.replace(/\s+/g, '');
@@ -49,10 +50,8 @@ document.addEventListener('contextmenu', e => {
     }
 });
 
-document.addEventListener('mousedown', e => {
-    if (e.button == 0) {
-        ctxMenu.style.transform = 'scale(0)';
-    }
+document.addEventListener('click', e => {
+    ctxMenu.style.transform = 'scale(0)';
 });
 
 ctxMenu.querySelectorAll('div').forEach(option => {
@@ -152,15 +151,17 @@ function appGui(app = '') {
                 <div class="close"><i class="fa-light fa-xmark"></i></div>
             </div>
             <div class="body">
-                <textarea class="main" spellcheck="false" autofocus></textarea>
+                <textarea class="main" spellcheck="false"></textarea>
             </div>
         `;
 
-        win.style.minWidth = '322px';
+        win.style.minWidth = '356px';
 
         const save = win.querySelector('#save');
         const load = win.querySelector('#load');
         const textarea = win.querySelector('textarea');
+
+        setTimeout(() => textarea.focus(), 200);
 
         save.addEventListener('click', () => {
             if (textarea.value == '') {
@@ -707,6 +708,12 @@ window.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(style);
 });
 
+const weather = {
+    name: document.querySelector('.name span'),
+    desc: document.querySelector('.desc span'),
+    wind: document.querySelector('.wind-speed span')
+}
+
 navigator.geolocation.getCurrentPosition(pos => {
     let latitude = pos.coords.latitude,
         longitude = pos.coords.longitude;
@@ -718,8 +725,14 @@ navigator.geolocation.getCurrentPosition(pos => {
             let description = data.weather[0].description;
             description = description.charAt(0).toUpperCase() + description.slice(1);
 
-            document.querySelector('.name span').innerHTML = data.name;
-            document.querySelector('.desc span').innerHTML = description;
-            document.querySelector('.wind-speed span').innerHTML = data.wind.speed;
+            weather.name.innerHTML = data.name;
+            weather.desc.innerHTML = description;
+            weather.wind.innerHTML = data.wind.speed;
         });
+}, error => {
+    let err = error.message.replace('User ', '').split(' ').reverse().join(' ');
+
+    weather.name.innerHTML = err;
+    weather.desc.innerHTML = err;
+    weather.wind.innerHTML = err;
 });
