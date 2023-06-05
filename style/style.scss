@@ -209,13 +209,18 @@ img {
     z-index: 3;
     transform: translate(-50%, -50%) scale(0);
     transition: transform 200ms;
-
+    
     .header {
         background-color: #121212;
         padding: 7px 0 7px 12px;
         margin: -8px;
         position: fixed;
         width: 100%;
+
+        .flexible-title {
+            display: flex;
+            gap: 6px;
+        }
 
         .options {
             position: absolute;

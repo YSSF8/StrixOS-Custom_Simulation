@@ -206,6 +206,10 @@ img {
   position: fixed;
   width: 100%;
 }
+.window .header .flexible-title {
+  display: flex;
+  gap: 6px;
+}
 .window .header .options {
   position: absolute;
   display: flex;

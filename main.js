@@ -7,8 +7,10 @@ fetch('https://bingoapi.darksidex37.repl.co')
 function getUsername() {
     let username = prompt('Username (Optional, max 10 characters):');
 
-    if (!username || username.trim() === '') {
+    if (username.trim() === '') {
         return 'Guest';
+    } else if (username == null) {
+        return;
     }
 
     username = username.replace(/\s+/g, '');
@@ -47,8 +49,10 @@ document.addEventListener('contextmenu', e => {
     }
 });
 
-document.addEventListener('click', () => {
-    ctxMenu.style.transform = 'scale(0)';
+document.addEventListener('mousedown', e => {
+    if (e.button == 0) {
+        ctxMenu.style.transform = 'scale(0)';
+    }
 });
 
 ctxMenu.querySelectorAll('div').forEach(option => {
@@ -124,12 +128,23 @@ window.addEventListener('mouseout', e => {
     }
 });
 
+Math['fact'] = n => {
+    if (n == 0 || n == 1) {
+        return 1;
+    } else {
+        return n * Math['fact'](n - 1);
+    }
+};
+
 function appGui(app = '') {
     const win = document.createElement('div');
     if (app == 'notepad') {
         win.innerHTML = `
             <div class="header">
-                <div class="title">Notepad</div>
+                <div class="flexible-title">
+                    <img src="./img/texteditor.png" height="20" alt="">
+                    <div class="title">Notepad</div>
+                </div>
                 <div class="options">
                     <button id="save"><i class="fa-light fa-floppy-disk"></i> Save</button>
                     <button id="load"><i class="fa-light fa-folder-open"></i> Open</button>
@@ -196,7 +211,10 @@ function appGui(app = '') {
     } else if (app == 'google') {
         win.innerHTML = `
             <div class="header">
-                <div class="title">Google</div>
+                <div class="flexible-title">
+                    <img src="./img/google.png" height="20" alt="">
+                    <div class="title">Google</div>
+                </div>
                 <div class="close"><i class="fa-light fa-xmark"></i></div>
             </div>
             <div class="body">
@@ -206,7 +224,10 @@ function appGui(app = '') {
     } else if (app == 'calculator') {
         win.innerHTML = `
             <div class="header">
-                <div class="title">Calculator</div>
+                <div class="flexible-title">
+                    <img src="./img/calculator.png" height="20" alt="">
+                    <div class="title">Calculator</div>
+                </div>
                 <div class="close"><i class="fa-light fa-xmark"></i></div>
             </div>
             <div class="body">
@@ -219,7 +240,7 @@ function appGui(app = '') {
                         <div class="calc-opt op"><i class="fa-light fa-value-absolute"></i></div>
                         <div class="calc-opt op"><i class="fa-light fa-superscript"></i></div>
                         <div class="calc-opt op"><i class="fa-light fa-delete-left"></i></div>
-                        <div class="calc-opt op"><i class="fa-solid fa-exclamation"></i></div>
+                        <div class="calc-opt op"><span>n</span><i class="fa-light fa-exclamation"></i></div>
                         <div class="calc-opt op">(</div>
                         <div class="calc-opt op">)</div>
                         <div class="calc-opt op">*</div>
@@ -250,14 +271,6 @@ function appGui(app = '') {
 
         const inputField = win.querySelector('.body input');
 
-        Math['fact'] = n => {
-            if (n == 0 || n == 1) {
-                return 1;
-            } else {
-                return n * Math['fact'](n - 1);
-            }
-        };
-
         win.querySelectorAll('.body .calc-opt').forEach(opt => {
             opt.addEventListener('click', () => {
                 switch (opt.innerHTML) {
@@ -266,7 +279,7 @@ function appGui(app = '') {
                             try {
                                 inputField.value = inputField.value.replace(/sqrt\((.*?)\)/g, 'Math.sqrt($1)');
                                 inputField.value = inputField.value.replace(/abs\((.*?)\)/g, 'Math.abs($1)');
-                                inputField.value = inputField.value.replace(/(\d+)pow\((.*?)\)/g, 'Math.pow($1, $2)');
+                                inputField.value = inputField.value.replace(/(\w+)pow\((.*?)\)/g, 'Math.pow($1, $2)');
                                 inputField.value = inputField.value.replace(/fact\((.*?)\)/g, 'Math.fact($1)');
                                 inputField.value = eval(inputField.value);
                             } catch {
@@ -289,17 +302,22 @@ function appGui(app = '') {
                     case '<i class="fa-light fa-superscript"></i>':
                         inputField.value += 'pow(';
                         break;
-                    case '<i class="fa-solid fa-exclamation"></i>':
+                    case '<span>n</span><i class="fa-light fa-exclamation"></i>':
                         inputField.value += 'fact(';
                         break;
                     default:
                         inputField.value += opt.innerHTML;
+                        inputField.value = inputField.value.replace(/(\+|-|\*|\/)(\+|-|\*|\/)/g, '$1');
+                        inputField.value = inputField.value.replace(/^(\+|\*|\/)/g, '');
                 }
             });
 
-            document.addEventListener('keyup', e => {
+            document.addEventListener('keydown', e => {
                 if (e.key == opt.innerHTML) {
                     inputField.value += opt.innerHTML;
+                    inputField.value = inputField.value.replace(/(\+|-|\*|\/)(\+|-|\*|\/)/g, '$1');
+                    inputField.value = inputField.value.replace(/^(\+|\*|\/)/g, '');
+                    inputField.value = inputField.value.replace('=', '');
                 }
             });
         });
@@ -696,6 +714,7 @@ navigator.geolocation.getCurrentPosition(pos => {
     fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=50a7aa80fa492fa92e874d23ad061374`)
         .then(res => res.json())
         .then(data => {
+            console.log(data);
             let description = data.weather[0].description;
             description = description.charAt(0).toUpperCase() + description.slice(1);
 
