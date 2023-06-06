@@ -504,6 +504,26 @@ function appGui(app = '') {
                             terminalOutput.innerHTML += `<div class="terminal-line">${index + 1}. ${cmd}</div>`;
                         });
                     }
+                } else if (/^position/gi.test(command)) {
+                    const position = command.replace(/^position\s+(.*)$/gi, '$1');
+
+                    if (!position.includes('x')) {
+                        terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid position</div>`;
+                        terminalInput.value = '';
+                        return;
+                    }
+
+                    const positions = position.split('x');
+                    win.style.left = `${positions[0]}%`;
+                    win.style.top = `${positions[1]}%`;
+
+                    terminalOutput.innerHTML += `<div class="terminal-line">Terminal moved to ${positions[0]}x${positions[1]}</div>`;
+                } else if (command == 'rerun') {
+                    win.style.transform = 'translate(-50%, -50%) scale(0)';
+                    setTimeout(() => {
+                        win.remove();
+                        appGui('terminal');
+                    }, 200);
                 } else if (command == 'help') {
                     terminalOutput.innerHTML += `
                         <div class="terminal-line"><b>Help list</b></div>
@@ -524,6 +544,8 @@ function appGui(app = '') {
                         <div class="terminal-line">closeable &lt;true/false&gt; - make the terminal closeable</div>
                         <div class="terminal-line">font &lt;font&gt; - change the font of the terminal</div>
                         <div class="terminal-line">history - print the command history</div>
+                        <div class="terminal-line">position &lt;xposxypos&gt; - move the terminal to a specific position</div>
+                        <div class="terminal-line">rerun - restart the terminal</div>
                         <div class="terminal-line">help - print this list</div>
                     `;
                 } else {
@@ -784,7 +806,6 @@ function dateTime() {
 
     document.querySelector('.hrs').innerHTML = date.hours;
     document.querySelector('.mins').innerHTML = date.minutes;
-    document.querySelector('.secs').innerHTML = date.seconds;
     document.querySelector('.month').innerHTML = date.month;
     document.querySelector('.day').innerHTML = date.day;
     document.querySelector('.yr').innerHTML = date.year;
