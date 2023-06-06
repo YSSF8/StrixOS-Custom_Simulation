@@ -349,14 +349,20 @@ function appGui(app = '') {
         const terminalOutput = win.querySelector('.body .terminal-output');
 
         setTimeout(() => terminalInput.focus(), 200);
+        
+        const commandHistory = [];
+        let historyIndex = 0;
 
         terminalInput.addEventListener('keyup', e => {
             if (e.key === 'Enter') {
+                
                 if (terminalInput.value == '') {
                     return;
                 }
-
+                
                 const command = terminalInput.value.trim();
+
+                commandHistory.push(command);
 
                 if (command === 'clear' || command === 'cls') {
                     terminalOutput.innerHTML = '';
@@ -393,22 +399,151 @@ function appGui(app = '') {
                     } catch (error) {
                         terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid expression</div>`;
                     }
-                }
-                else if (command == 'help') {
-                    terminalOutput.innerHTML += '<div class="terminal-line"><b>Help list</b></div>';
-                    terminalOutput.innerHTML += '<div class="terminal-line">clear/cls - clear the terminal</div>';
-                    terminalOutput.innerHTML += '<div class="terminal-line">echo <text> - print text</div>';
-                    terminalOutput.innerHTML += '<div class="terminal-line">color <color> - change text color</div>';
-                    terminalOutput.innerHTML += '<div class="terminal-line">date - print current date</div>';
-                    terminalOutput.innerHTML += '<div class="terminal-line">close/exit/quit - close the terminal</div>';
-                    terminalOutput.innerHTML += '<div class="terminal-line">calc <expression> - calculate an expression</div>';
-                    terminalOutput.innerHTML += '<div class="terminal-line">help - print this list</div>';
+                } else if (command == 'restart') {
+                    location.reload();
+                } else if (/^open\s+(.*)$/gi.test(command)) {
+                    const application = command.replace(/^open\s+(.*)$/gi, '$1');
+
+                    terminalOutput.innerHTML += `<div class="terminal-line">Opening ${application}</div>`;
+
+                    switch (application) {
+                        case 'texteditor':
+                        case 'notepad':
+                            appGui('notepad');
+                            break;
+                        case 'google':
+                            appGui('google');
+                            break;
+                        case 'calculator':
+                            appGui('calculator');
+                            break;
+                        case 'cmd':
+                        case 'terminal':
+                            appGui('terminal');
+                            break;
+                        default:
+                            terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid application</div>`;
+                    }
+                } else if (/^title\s+(.*)$/gi.test(command)) {
+                    const title = win.querySelector('.title');
+                    title.innerHTML = command.replace(/^title\s+(.*)$/gi, '$1').replace(/(?<=^.{20})(.*)/g, '');
+                    terminalOutput.innerHTML += `<div class="terminal-line">Title changed to '${title.innerHTML}'</div>`;
+                } else if (/^username\s+(.*)$/gi.test(command)) {
+                    let newUsername = command.replace(/^username\s+(.*)$/gi, '$1').replace(/\s/g, '');
+                    newUsername = newUsername.substring(0, 10);
+                    localStorage.setItem('username', newUsername);
+                    usernameLabel.innerHTML = newUsername;
+                    terminalOutput.innerHTML += `<div class="terminal-line">Username changed to '${newUsername}'</div>`;
+                } else if (command == 'thememgr') {
+                    const themes = document.createElement('theme-manager');
+                    document.body.appendChild(themes);
+                    terminalOutput.innerHTML += `<div class="terminal-line">Theme Manager opened</div>`;
+                } else if (command == 'kill') {
+                    document.querySelectorAll('.window').forEach(window => {
+                        window.style.transform = 'translate(-50%, -50%) scale(0)';
+                        setTimeout(() => window.remove(), 200);
+                    });
+                } else if (/^copy\s+(.*)$/gi.test(command)) {
+                    switch (command.replace(/^copy\s+(.*)$/gi, '$1')) {
+                        case 'all':
+                            navigator.clipboard.writeText(terminalOutput.innerText);
+                            terminalOutput.innerHTML += `<div class="terminal-line">Terminal content copied to clipboard</div>`;
+                            break;
+                        case 'first':
+                            navigator.clipboard.writeText(terminalOutput.firstElementChild.innerText);
+                            terminalOutput.innerHTML += `<div class="terminal-line">First line copied to clipboard</div>`;
+                            break;
+                        case 'last':
+                            navigator.clipboard.writeText(terminalOutput.lastElementChild.innerText);
+                            terminalOutput.innerHTML += `<div class="terminal-line">Last line copied to clipboard</div>`;
+                            break;
+                        default:
+                            terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid command</div>`;
+                    }
+                } else if (/^resize\s+(.*)$/gi.test(command)) {
+                    const size = command.replace(/^resize\s+(.*)$/gi, '$1');
+
+                    if (!size.includes('x')) {
+                        terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid size</div>`;
+                        terminalInput.value = '';
+                        return;
+                    }
+
+                    const sizes = size.split('x');
+                    win.style.width = `${sizes[0]}px`;
+                    win.style.height = `${sizes[1]}px`;
+
+                    terminalOutput.innerHTML += `<div class="terminal-line">Terminal resized to ${sizes[0]}x${sizes[1]}</div>`;
+                } else if (/^closeable\s+(.*)$/gi.test(command)) {
+                    const closeable = command.replace(/^closeable\s+(.*)$/gi, '$1');
+
+                    if (closeable == 'false') {
+                        closeBtn.style.pointerEvents = 'none';
+                        terminalOutput.innerHTML += `<div class="terminal-line">Terminal is now not closeable</div>`;
+                    } else if (closeable == 'true') {
+                        closeBtn.style.pointerEvents = 'all';
+                        terminalOutput.innerHTML += `<div class="terminal-line">Terminal is now closeable</div>`;
+                    } else {
+                        terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid value</div>`;
+                    }
+                } else if (/^font\s+(.*)$/gi.test(command)) {
+                    const font = command.replace(/^font\s+(.*)$/gi, '$1');
+                    const nestedElements = terminalOutput.querySelectorAll('.terminal-line');
+
+                    nestedElements.forEach(element => {
+                        element.style.fontFamily = font;
+                    });
+
+                    terminalOutput.innerHTML += `<div class="terminal-line">Changed font to '${font}'</div>`;
+                } else if (command == 'history') {
+                    if (commandHistory.length == 0) {
+                        terminalOutput.innerHTML += `<div class="terminal-line">Command history is empty</div>`;
+                    } else {
+                        terminalOutput.innerHTML += `<div class="terminal-line"><b>Command History:</b></div>`;
+                        commandHistory.forEach((cmd, index) => {
+                            terminalOutput.innerHTML += `<div class="terminal-line">${index + 1}. ${cmd}</div>`;
+                        });
+                    }
+                } else if (command == 'help') {
+                    terminalOutput.innerHTML += `
+                        <div class="terminal-line"><b>Help list</b></div>
+                        <div class="terminal-line">clear/cls - clear the terminal</div>
+                        <div class="terminal-line">echo &lt;text&gt; - print text</div>
+                        <div class="terminal-line">color &lt;color&gt; - change text color</div>
+                        <div class="terminal-line">date - print current date</div>
+                        <div class="terminal-line">close/exit/quit - close the terminal</div>
+                        <div class="terminal-line">calc &lt;expression&gt; - calculate an expression</div>
+                        <div class="terminal-line">restart - restart the OS</div>
+                        <div class="terminal-line">open &lt;application&gt; - open an application</div>
+                        <div class="terminal-line">title &lt;title&gt; - change the title of the terminal (Max length: 20 characters)</div>
+                        <div class="terminal-line">username &lt;username&gt; - change the username (Max length: 10 characters)</div>
+                        <div class="terminal-line">thememgr - open the theme manager</div>
+                        <div class="terminal-line">kill - close all windows</div>
+                        <div class="terminal-line">copy &lt;all/first/last&gt; - copy the terminal content to the clipboard</div>
+                        <div class="terminal-line">resize &lt;widthxheight&gt; - resize the terminal</div>
+                        <div class="terminal-line">closeable &lt;true/false&gt; - make the terminal closeable</div>
+                        <div class="terminal-line">font &lt;font&gt; - change the font of the terminal</div>
+                        <div class="terminal-line">history - print the command history</div>
+                        <div class="terminal-line">help - print this list</div>
+                    `;
                 } else {
                     terminalOutput.innerHTML += `<div class="terminal-line">'${command}' is not recognized as an internal or external command, operable program, or batch file.</div>`;
                 }
 
                 terminalInput.value = '';
                 terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length) {
+                    historyIndex++;
+                }
+                terminalInput.value = commandHistory[commandHistory.length - historyIndex] || '';
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                }
+                terminalInput.value = commandHistory[commandHistory.length - historyIndex] || '';
             }
         });
     }
@@ -574,6 +709,7 @@ document.querySelectorAll('.taskbar img').forEach(icon => {
                 break;
         }
 
+
         searchField.value = '';
 
         for (let i = 0; i < apps.length; i++) {
@@ -600,6 +736,7 @@ document.querySelectorAll('.taskbar img').forEach(icon => {
         elmnt.style.top = `${rect.y - 40}px`;
 
         if (appNameLimit > 1) elmnt.remove();
+
     });
 
     icon.addEventListener('mouseout', () => {
