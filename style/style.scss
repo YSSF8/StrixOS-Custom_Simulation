@@ -26,6 +26,11 @@ img {
 .app-sort {
     padding: 7px;
     width: max-content;
+    height: calc(100% - 62px);
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 5px;
 
     .app {
         padding: 15px 15px 30px 15px;
@@ -358,7 +363,31 @@ img {
             border: 1px solid #444;
 
             .terminal-line {
-                margin: 6px 3px;
+                margin: 6px 3px 10px 3px;
+
+                .terminal-var {
+                    color: var(--accent);
+                }
+
+                .terminal-val {
+                    color: #ce9178;
+                }
+
+                .terminal-num {
+                    color: #B5cea8;
+                }
+
+                .terminal-other {
+                    color: #007acc;
+                }
+            }
+
+            .terminal-snippet {
+                background-color: #3e3e3e;
+                padding: 7px;
+                border-radius: 8px;
+                word-wrap: break-word;
+                overflow-x: auto;
             }
         }
     }

@@ -1,7 +1,10 @@
+document.body.style.height = `${window.innerHeight - 16}px`;
+const bg = document.querySelector('.bg');
+
 fetch('https://bingoapi.darksidex37.repl.co')
     .then(res => res.json())
     .then(data => {
-        document.querySelector('.bg').src = data.url;
+        bg.src = data.url;
     });
 
 function getUsername() {
@@ -327,7 +330,11 @@ function appGui(app = '') {
             if (e.key == 'Backspace') {
                 inputField.value = inputField.value.slice(0, -1);
             } else if (e.key == 'Enter') {
-                document.querySelector('.body .op:last-child').click();
+                try {
+                    document.querySelector('.body .op:last-child').click();
+                } catch {
+                    return;
+                }
             }
         });
     } else if (app == 'terminal') {
@@ -347,19 +354,20 @@ function appGui(app = '') {
 
         const terminalInput = win.querySelector('.body input');
         const terminalOutput = win.querySelector('.body .terminal-output');
+        const title = win.querySelector('.title');
 
         setTimeout(() => terminalInput.focus(), 200);
-        
+
         const commandHistory = [];
         let historyIndex = 0;
 
         terminalInput.addEventListener('keyup', e => {
             if (e.key === 'Enter') {
-                
+
                 if (terminalInput.value == '') {
                     return;
                 }
-                
+
                 const command = terminalInput.value.trim();
 
                 commandHistory.push(command);
@@ -425,7 +433,6 @@ function appGui(app = '') {
                             terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid application</div>`;
                     }
                 } else if (/^title\s+(.*)$/gi.test(command)) {
-                    const title = win.querySelector('.title');
                     title.innerHTML = command.replace(/^title\s+(.*)$/gi, '$1').replace(/(?<=^.{20})(.*)/g, '');
                     terminalOutput.innerHTML += `<div class="terminal-line">Title changed to '${title.innerHTML}'</div>`;
                 } else if (/^username\s+(.*)$/gi.test(command)) {
@@ -524,6 +531,230 @@ function appGui(app = '') {
                         win.remove();
                         appGui('terminal');
                     }, 200);
+                } else if (/^get\s+(.*)$/gi.test(command)) {
+                    const key = command.replace(/^get\s+(.*)$/gi, '$1');
+
+                    switch (key) {
+                        case 'username':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Username: ${localStorage.getItem('username')}</div>`;
+                            break;
+                        case 'background-url':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Background URL: ${bg.src}</div>`;
+                            break;
+                        case 'title':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Title: ${title.innerHTML}</div>`;
+                            break;
+                        case 'closeable':
+                            if (closeBtn.style.pointerEvents == 'all') {
+                                terminalOutput.innerHTML += `<div class="terminal-line">Closeable: true</div>`;
+                            } else if (closeBtn.style.pointerEvents == 'none' || !closeBtn.style.pointerEvents) {
+                                terminalOutput.innerHTML += `<div class="terminal-line">Closeable: false</div>`;
+                            }
+                            break;
+                    }
+                } else if (command == 'load') {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    document.body.appendChild(fileInput);
+                    terminalOutput.innerHTML += `<div class="terminal-line">Choosing file...</div>`;
+
+                    fileInput.addEventListener('change', () => {
+                        const file = fileInput.files[0];
+                        const reader = new FileReader();
+
+                        reader.addEventListener('load', () => {
+                            const content = reader.result;
+
+                            terminalOutput.innerHTML += `<div class="terminal-line terminal-snippet"></div>`;
+                            const snippet = terminalOutput.querySelectorAll('.terminal-snippet');
+
+                            snippet[snippet.length - 1].innerText = content;
+                        });
+
+                        reader.readAsText(file);
+                        terminalOutput.innerHTML += `<div class="terminal-line">File Loaded '${file.name}'</div>`;
+                    });
+
+                    fileInput.click();
+                    fileInput.remove();
+                } else if (/^save\s+(.*)$/gi.test(command)) {
+                    const value = command.replace(/^save\s+(.*)$/gi, '$1');
+
+                    let blob;
+
+                    switch (value) {
+                        case 'all':
+                            blob = new Blob([terminalOutput.innerText], { type: 'text/plain' });
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(blob);
+                            a.download = 'all.txt';
+                            a.click();
+                            a.remove();
+                            terminalOutput.innerHTML += `<div class="terminal-line">File Saved as '${a.download}'</div>`;
+                            break;
+                        case 'first':
+                            blob = new Blob([terminalOutput.firstElementChild.innerText], { type: 'text/plain' });
+                            const b = document.createElement('a');
+                            b.href = URL.createObjectURL(blob);
+                            b.download = 'first.txt';
+                            b.click();
+                            b.remove();
+                            terminalOutput.innerHTML += `<div class="terminal-line">File Saved as '${b.download}'</div>`;
+                            break;
+                        case 'last':
+                            blob = new Blob([terminalOutput.lastElementChild.innerText], { type: 'text/plain' });
+                            const c = document.createElement('a');
+                            c.href = URL.createObjectURL(blob);
+                            c.download = 'last.txt';
+                            c.click();
+                            c.remove();
+                            terminalOutput.innerHTML += `<div class="terminal-line">File Saved as '${c.download}'</div>`;
+                            break;
+                        default:
+                            terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid value</div>`;
+                    }
+
+                    URL.revokeObjectURL(blob);
+                } else if (/^github\s+(.*)$/gi.test(command)) {
+                    const username = command.replace(/^github\s+(.*)$/gi, '$1');
+
+                    fetch(`https://api.github.com/users/${username}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            terminalOutput.innerHTML += `<div class="terminal-line terminal-snippet"><pre>${JSON.stringify(data, null, 4)}</pre></div>`;
+                            terminalOutput.innerHTML = terminalOutput.innerHTML.replace(/"(.*)":\s+"(.*)"/g, '<span class="terminal-var">"$1"</span><span>: </span><span class="terminal-val">"$2"</span>');
+                            terminalOutput.innerHTML = terminalOutput.innerHTML.replace(/"(.*)":\s+(\d+)/g, '<span class="terminal-var">"$1"</span><span>: </span><span class="terminal-num">$2</span>');
+                            terminalOutput.innerHTML = terminalOutput.innerHTML.replace(/"(.*)":\s+((?!"|\s).*)(?=,)/g, '<span class="terminal-var">"$1"</span><span>: </span><span class="terminal-other">$2</span>');
+
+                            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                        })
+                        .catch(err => {
+                            terminalOutput.innerHTML += `<div class="terminal-line">An error occured: ${err}</div>`;
+                        });
+                } else if (/^rename\s+(.*)$/gi.test(command)) {
+                    const name = command.replace(/^rename\s+(.*)$/gi, '$1');
+                    const splitted = name.split(' ');
+
+                    const firstTitle = splitted[0];
+                    const secondTitle = splitted[1];
+
+                    if (splitted.length > 2) {
+                        terminalOutput.innerHTML += '<div class="terminal-line">Error: Too many arguments</div>';
+                        terminalInput.value = '';
+                        return;
+                    }
+
+                    let matchFound = false;
+                    let titleExists = false;
+
+                    document.querySelectorAll('.app-sort .app').forEach(app => {
+                        const appTitle = app.querySelector('div');
+
+                        if (appTitle.innerText.trim() == firstTitle.trim()) {
+                            matchFound = true;
+                        }
+
+                        if (appTitle.innerText.trim() == secondTitle.trim()) {
+                            titleExists = true;
+                        }
+                    });
+
+                    if (matchFound) {
+                        if (titleExists) {
+                            terminalOutput.innerHTML += `<div class="terminal-line">Error: Title already exists</div>`;
+                        } else {
+                            document.querySelectorAll('.app-sort .app').forEach(app => {
+                                const appTitle = app.querySelector('div');
+
+                                if (appTitle.innerText.trim() == firstTitle.trim()) {
+                                    appTitle.innerText = secondTitle;
+                                }
+                            });
+
+                            terminalOutput.innerHTML += `<div class="terminal-line">Rename '${firstTitle}' to '${secondTitle}' successfully</div>`;
+                        }
+                    } else {
+                        terminalOutput.innerHTML += `<div class="terminal-line">Error: Title not found</div>`;
+                    }
+                } else if (/^clone\s+(.*)$/gi.test(command)) {
+                    const regex = /^clone\s+(.*?)\s+(.*?)$/i;
+                    const matches = command.match(regex);
+
+                    if (matches && matches.length === 3) {
+                        const firstTitle = matches[1];
+                        const secondTitle = matches[2];
+
+                        const appSort = document.querySelector('.app-sort');
+                        const apps = appSort.querySelectorAll('.app');
+
+                        const existingApp = Array.from(apps).find(app => {
+                            const title = app.querySelector('div');
+                            return title.innerText.trim() === secondTitle;
+                        });
+
+                        if (existingApp) {
+                            terminalOutput.innerHTML += `<div class="terminal-line">Error: Title already exists</div>`;
+                        } else {
+                            apps.forEach(app => {
+                                const title = app.querySelector('div');
+                                const appTitle = title.innerText.trim();
+
+                                if (appTitle == firstTitle) {
+                                    const clonedApp = app.cloneNode(true);
+                                    const clonedTitle = clonedApp.querySelector('div');
+                                    clonedTitle.innerText = secondTitle;
+                                    clonedApp.classList.add('app', secondTitle);
+                                    appSort.appendChild(clonedApp);
+
+                                    terminalOutput.innerHTML += `<div class="terminal-line">Successfully cloned '${firstTitle}' as '${secondTitle}'</div>`;
+                                }
+                            });
+                        }
+                    } else {
+                        terminalOutput.innerHTML += `<div class="terminal-line">Invalid command. Usage: clone [existingAppName] [newAppName]</div>`;
+                    }
+                } else if (/^delete/gi.test(command)) {
+                    const appName = command.replace(/^delete\s+(.*)$/gi, '$1');
+
+                    document.querySelectorAll('.app-sort .app').forEach(app => {
+                        if (app.querySelector('div').innerText.trim().toLowerCase() == appName.toLowerCase()) {
+                            app.remove();
+                        }
+                    });
+
+                    let errorDisplayed = false;
+
+                    document.querySelectorAll('.taskbar img').forEach(app => {
+                        const regex = app.src.match(/(?<=img\/)(.*?)(?=\.png)/gi)[0];
+
+                        if (regex.toLowerCase() == 'logo') {
+                            terminalOutput.innerHTML += '<div class="terminal-line">Error: Application not found</div>';
+                            errorDisplayed = true;
+                            return;
+                        }
+
+                        if (regex.toLowerCase() == appName.toLowerCase()) {
+                            app.remove();
+                        } else if (!errorDisplayed) {
+                            terminalOutput.innerHTML += '<div class="terminal-line">Error: Application not found</div>';
+                            errorDisplayed = true;
+                        }
+
+                        if (regex.toLowerCase() == 'texteditor' && appName.toLowerCase() == 'notepad') {
+                            app.remove();
+                        }
+                    });
+
+                    document.querySelectorAll('.start-menu img').forEach(app => {
+                        const regex = app.src.match(/(?<=img\/)(.*?)(?=\.png)/gi)[0];
+
+                        if (regex.toLowerCase() == appName.toLowerCase()) {
+                            app.remove();
+                        }
+                        if (regex.toLowerCase() == 'texteditor' && appName.toLowerCase() == 'notepad') {
+                            app.remove();
+                        }
+                    });
                 } else if (command == 'help') {
                     terminalOutput.innerHTML += `
                         <div class="terminal-line"><b>Help list</b></div>
@@ -546,6 +777,13 @@ function appGui(app = '') {
                         <div class="terminal-line">history - print the command history</div>
                         <div class="terminal-line">position &lt;xposxypos&gt; - move the terminal to a specific position</div>
                         <div class="terminal-line">rerun - restart the terminal</div>
+                        <div class="terminal-line">get &lt;key&gt; - get a value from the terminal</div>
+                        <div class="terminal-line">load - load a file from the disk</div>
+                        <div class="terminal-line">save &lt;all/first/last&gt; - save the terminal content to the disk</div>
+                        <div class="terminal-line">github &lt;username&gt; - get information about a github user</div>
+                        <div class="terminal-line">rename &lt;old title&gt; &lt;new title&gt; - rename an application</div>
+                        <div class="terminal-line">clone &lt;existing title&gt; &lt;new title&gt; - clone an application</div>
+                        <div class="terminal-line">delete &lt;application title&gt; - delete an application</div>
                         <div class="terminal-line">help - print this list</div>
                     `;
                 } else {
@@ -666,7 +904,7 @@ function appGui(app = '') {
 
 document.querySelectorAll('.app').forEach(app => {
     app.addEventListener('dblclick', () => {
-        switch (app.className.match(/(?<=app\s).+/g)[0]) {
+        switch (app.className.match(/(?<=app\s+).+/g)[0]) {
             case 'notepad':
                 appGui('notepad');
                 break;

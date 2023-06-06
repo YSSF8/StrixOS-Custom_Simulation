@@ -28,6 +28,11 @@ img {
   padding: 7px;
   width: -moz-max-content;
   width: max-content;
+  height: calc(100% - 62px);
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 5px;
 }
 .app-sort .app {
   padding: 15px 15px 30px 15px;
@@ -330,7 +335,26 @@ img {
   border: 1px solid #444;
 }
 .window .body .terminal-output .terminal-line {
-  margin: 6px 3px;
+  margin: 6px 3px 10px 3px;
+}
+.window .body .terminal-output .terminal-line .terminal-var {
+  color: var(--accent);
+}
+.window .body .terminal-output .terminal-line .terminal-val {
+  color: #ce9178;
+}
+.window .body .terminal-output .terminal-line .terminal-num {
+  color: #B5cea8;
+}
+.window .body .terminal-output .terminal-line .terminal-other {
+  color: #007acc;
+}
+.window .body .terminal-output .terminal-snippet {
+  background-color: #3e3e3e;
+  padding: 7px;
+  border-radius: 8px;
+  word-wrap: break-word;
+  overflow-x: auto;
 }
 
 .ctx-menu {
