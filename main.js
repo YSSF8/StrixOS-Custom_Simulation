@@ -1,4 +1,4 @@
-document.body.style.height = `${window.innerHeight - 16}px`;
+document.body.style.height = `${window.innerHeight - document.querySelector('.taskbar').offsetHeight}px`;
 const bg = document.querySelector('.bg');
 
 fetch('https://bingoapi.darksidex37.repl.co')
@@ -13,7 +13,7 @@ function getUsername() {
     if (username == null) {
         return localStorage.getItem('username') ? localStorage.getItem('username') : 'Guest';
     }
-    if (username.trim() === '') {
+    if (username.trim() == '') {
         return 'Guest';
     }
 
@@ -119,7 +119,7 @@ container.addEventListener('mouseup', () => {
 });
 
 window.addEventListener('mouseout', e => {
-    if (e.relatedTarget === null) {
+    if (e.relatedTarget == null) {
         isSelecting = false;
 
         try {
@@ -362,7 +362,7 @@ function appGui(app = '') {
         let historyIndex = 0;
 
         terminalInput.addEventListener('keyup', e => {
-            if (e.key === 'Enter') {
+            if (e.key == 'Enter') {
 
                 if (terminalInput.value == '') {
                     return;
@@ -372,7 +372,7 @@ function appGui(app = '') {
 
                 commandHistory.push(command);
 
-                if (command === 'clear' || command === 'cls') {
+                if (command == 'clear' || command == 'cls') {
                     terminalOutput.innerHTML = '';
                     terminalInput.value = '';
                     return;
@@ -680,7 +680,7 @@ function appGui(app = '') {
                     const regex = /^clone\s+(.*?)\s+(.*?)$/i;
                     const matches = command.match(regex);
 
-                    if (matches && matches.length === 3) {
+                    if (matches && matches.length == 3) {
                         const firstTitle = matches[1];
                         const secondTitle = matches[2];
 
@@ -689,7 +689,7 @@ function appGui(app = '') {
 
                         const existingApp = Array.from(apps).find(app => {
                             const title = app.querySelector('div');
-                            return title.innerText.trim() === secondTitle;
+                            return title.innerText.trim() == secondTitle;
                         });
 
                         if (existingApp) {
@@ -722,28 +722,30 @@ function appGui(app = '') {
                         }
                     });
 
-                    let errorDisplayed = false;
+                    let isError = false;
 
                     document.querySelectorAll('.taskbar img').forEach(app => {
                         const regex = app.src.match(/(?<=img\/)(.*?)(?=\.png)/gi)[0];
 
                         if (regex.toLowerCase() == 'logo') {
-                            terminalOutput.innerHTML += '<div class="terminal-line">Error: Application not found</div>';
-                            errorDisplayed = true;
+                            isError = true;
                             return;
                         }
 
                         if (regex.toLowerCase() == appName.toLowerCase()) {
                             app.remove();
-                        } else if (!errorDisplayed) {
-                            terminalOutput.innerHTML += '<div class="terminal-line">Error: Application not found</div>';
-                            errorDisplayed = true;
+                        } else {
+                            isError = true;
                         }
 
                         if (regex.toLowerCase() == 'texteditor' && appName.toLowerCase() == 'notepad') {
                             app.remove();
                         }
                     });
+
+                    if (isError) {
+                        terminalOutput.innerHTML += '<div class="terminal-line">Error: App not found</div>';
+                    }
 
                     document.querySelectorAll('.start-menu img').forEach(app => {
                         const regex = app.src.match(/(?<=img\/)(.*?)(?=\.png)/gi)[0];
@@ -755,6 +757,63 @@ function appGui(app = '') {
                             app.remove();
                         }
                     });
+                } else if (/^math\s+(.*)$/gi.test(command)) {
+                    const expression = command.replace(/^math\s+(.*)$/gi, '$1');
+                    const splitted = expression.split(' ');
+
+                    const first = splitted[0];
+                    const second = parseFloat(splitted[1]);
+
+                    switch (first) {
+                        case 'fact':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Factorial of ${second} is '${Math.fact(second)}'</div>`;
+                            break;
+                        case 'pow':
+                            const result = Math.pow(parseFloat(second), parseFloat(splitted[2]));
+                            terminalOutput.innerHTML += `<div class="terminal-line">Power of ${second}, ${splitted[2]} is '${result}'</div>`;
+                            break;
+                        case 'sqrt':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Square root of ${second} is '${Math.sqrt(second)}'</div>`;
+                            break;
+                        case 'floor':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Floor of ${second} is '${Math.floor(second)}'</div>`;
+                            break;
+                        case 'abs':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Absolute value of ${second} is '${Math.abs(second)}'</div>`;
+                            break;
+                        case 'min':
+                            const minNumbers = splitted.slice(1).map(parseFloat);
+                            const minResult = Math.min(...minNumbers);
+                            terminalOutput.innerHTML += `<div class="terminal-line">Minimum value from the given numbers is '${minResult}'</div>`;
+                            break;
+                        case 'max':
+                            const maxNumbers = splitted.slice(1).map(parseFloat);
+                            const maxResult = Math.max(...maxNumbers);
+                            terminalOutput.innerHTML += `<div class="terminal-line">Maximum value from the given numbers is '${maxResult}'</div>`;
+                            break;
+                        default:
+                            terminalOutput.innerHTML += `<div class="terminal-line">Error: Invalid math command</div>`;
+                    }
+                } else if (/^devtools(.*)$/gi.test(command)) {
+                    const tool = command.replace(/^devtools(.*)$/gi, '$1');
+                    const trimmed = tool.trim();
+
+                    const config = {
+                        width: 600,
+                        height: 700
+                    }
+
+                    config.top = (window.innerHeight - config.height) / 2;
+                    config.left = (window.innerWidth - config.width) / 2;
+
+                    if (!/(html|scss|js)/gi.test(trimmed)) {
+                        terminalOutput.innerHTML += '<div class="terminal-line">Error: Invalid devtools tool</div>';
+                        terminalInput.value = '';
+                        return;
+                    }
+
+                    window.open(`devtools/${trimmed}.html`, '_blank', `width=${config.width},height=${config.height},top=${config.top},left=${config.left}`);
+                    terminalOutput.innerHTML += `<div class="terminal-line">Successfully opened devtools for '${tool}'</div>`;
                 } else if (command == 'help') {
                     terminalOutput.innerHTML += `
                         <div class="terminal-line"><b>Help list</b></div>
@@ -784,6 +843,8 @@ function appGui(app = '') {
                         <div class="terminal-line">rename &lt;old title&gt; &lt;new title&gt; - rename an application</div>
                         <div class="terminal-line">clone &lt;existing title&gt; &lt;new title&gt; - clone an application</div>
                         <div class="terminal-line">delete &lt;application title&gt; - delete an application</div>
+                        <div class="terminal-line">math &lt;math command&gt; - perform a math operation</div>
+                        <div class="terminal-line">devtools &lt;tool&gt; - open a devtools tool</div>
                         <div class="terminal-line">help - print this list</div>
                     `;
                 } else {
@@ -792,13 +853,13 @@ function appGui(app = '') {
 
                 terminalInput.value = '';
                 terminalOutput.scrollTop = terminalOutput.scrollHeight;
-            } else if (e.key === 'ArrowUp') {
+            } else if (e.key == 'ArrowUp') {
                 e.preventDefault();
                 if (historyIndex < commandHistory.length) {
                     historyIndex++;
                 }
                 terminalInput.value = commandHistory[commandHistory.length - historyIndex] || '';
-            } else if (e.key === 'ArrowDown') {
+            } else if (e.key == 'ArrowDown') {
                 e.preventDefault();
                 if (historyIndex > 0) {
                     historyIndex--;
