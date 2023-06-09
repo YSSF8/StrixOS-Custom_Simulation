@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StrixOS - Developer Tools (HTML)</title>
+    <title>StrixOS - Developer Tools (CSS)</title>
     <link rel="shortcut icon" href="../img/logo.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js" integrity="sha512-rdhY3cbXURo13l/WU9VlaRyaIYeJ/KBakckXIvJNAQde8DgpOmE+eZf7ha4vdqVjTtwQt69bD2wH2LXob/LB7Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/base16/dracula.min.css" integrity="sha512-zKpFlhUX8c+WC6H/XTJavnEpWFt2zH9BU9vu0Hry5Y+SEgG21pRMFcecS7DgDXIegXBQ3uK9puwWPP3h6WSR9g==" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -26,12 +26,12 @@
 </head>
 <body>
     <pre>
-        <code class="html"></code>
+        <code class="css"></code>
     </pre>
     <script>
-        const code = document.querySelector('.html');
+        const code = document.querySelector('.css');
 
-        fetch('../index.html')
+        fetch('../style/style.css')
             .then(res => res.text())
             .then(data => {
                 code.textContent = data;

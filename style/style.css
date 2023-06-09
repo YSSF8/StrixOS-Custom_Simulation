@@ -28,11 +28,10 @@ img {
   padding: 7px;
   width: -moz-max-content;
   width: max-content;
-  height: calc(100% - 62px);
+  height: calc(100% - 50px);
   display: flex;
-  flex-wrap: wrap;
   flex-direction: column;
-  gap: 5px;
+  flex-wrap: wrap;
 }
 .app-sort .app {
   padding: 15px 15px 30px 15px;

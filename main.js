@@ -551,6 +551,14 @@ function appGui(app = '') {
                                 terminalOutput.innerHTML += `<div class="terminal-line">Closeable: false</div>`;
                             }
                             break;
+                        case 'position':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Position: ${win.offsetLeft}x${win.offsetTop}</div>`;
+                            break;
+                        case 'size':
+                            terminalOutput.innerHTML += `<div class="terminal-line">Size: ${win.offsetWidth}x${win.offsetHeight}</div>`;
+                            break;
+                        default:
+                            terminalOutput.innerHTML += '<div class="terminal-line">Error: Invalid key</div>';
                     }
                 } else if (command == 'load') {
                     const fileInput = document.createElement('input');
@@ -629,7 +637,7 @@ function appGui(app = '') {
                             terminalOutput.scrollTop = terminalOutput.scrollHeight;
                         })
                         .catch(err => {
-                            terminalOutput.innerHTML += `<div class="terminal-line">An error occured: ${err}</div>`;
+                            terminalOutput.innerHTML += `<div class="terminal-line">Error: ${err}</div>`;
                         });
                 } else if (/^rename\s+(.*)$/gi.test(command)) {
                     const name = command.replace(/^rename\s+(.*)$/gi, '$1');
@@ -803,17 +811,19 @@ function appGui(app = '') {
                         height: 700
                     }
 
-                    config.top = (window.innerHeight - config.height) / 2;
-                    config.left = (window.innerWidth - config.width) / 2;
+                    config.top = (screen.height - config.height) / 2;
+                    config.left = (screen.width - config.width) / 2;
 
-                    if (!/(html|scss|js)/gi.test(trimmed)) {
+                    if (!/(html|scss|css|js)/gi.test(trimmed.toLowerCase())) {
                         terminalOutput.innerHTML += '<div class="terminal-line">Error: Invalid devtools tool</div>';
                         terminalInput.value = '';
                         return;
                     }
 
                     window.open(`devtools/${trimmed}.html`, '_blank', `width=${config.width},height=${config.height},top=${config.top},left=${config.left}`);
-                    terminalOutput.innerHTML += `<div class="terminal-line">Successfully opened devtools for '${tool}'</div>`;
+                    terminalOutput.innerHTML += `<div class="terminal-line">Successfully opened devtools for '${tool.toLowerCase()}'</div>`;
+                } else if (command == 'execjs') {
+                    window.open('execjs.html', '_blank', `width=${screen.width},height=${screen.height},top=0,left=0`);
                 } else if (command == 'help') {
                     terminalOutput.innerHTML += `
                         <div class="terminal-line"><b>Help list</b></div>
@@ -844,7 +854,8 @@ function appGui(app = '') {
                         <div class="terminal-line">clone &lt;existing title&gt; &lt;new title&gt; - clone an application</div>
                         <div class="terminal-line">delete &lt;application title&gt; - delete an application</div>
                         <div class="terminal-line">math &lt;math command&gt; - perform a math operation</div>
-                        <div class="terminal-line">devtools &lt;tool&gt; - open a devtools tool</div>
+                        <div class="terminal-line">devtools &lt;tool&gt; - open the developer tools</div>
+                        <div class="terminal-line">execjs - open the execjs tool</div>
                         <div class="terminal-line">help - print this list</div>
                     `;
                 } else {
@@ -1273,7 +1284,6 @@ navigator.geolocation.getCurrentPosition(pos => {
     fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=50a7aa80fa492fa92e874d23ad061374`)
         .then(res => res.json())
         .then(data => {
-            console.log(data);
             let description = data.weather[0].description;
             description = description.charAt(0).toUpperCase() + description.slice(1);
 
